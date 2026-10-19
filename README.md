@@ -54,8 +54,3 @@ En la pantalla de ingreso hay accesos directos para entrar como cliente o como p
 | `css/styles.css` | Estilos de todas las pantallas | |
 
 No hay medios de pago: el trabajo y el cobro se arreglan entre cliente y profesional, fuera de la app.
-
-- **Estrellas de calificación**: son `radio` y se pintan con CSS.
-- **Interruptor "disponible hoy"**: es un `checkbox` con estilo.
-- **Diálogos de confirmación** (cancelar pedido, rechazar, eliminar cuenta): son bloques `<div class="modal" id="...">` que se abren con un enlace a `#id` y se cierran con un enlace a `#`.
-- **Agregar dirección o certificado**: usan `<details>` para mostrar el formulario.
