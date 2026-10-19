@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Tu pedido · Ofix</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=Public+Sans:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="app">
+<header class="sitebar">
+  <div class="sitebar-inner">
+    <a class="brand" href="inicio.html">Ofix</a>
+    <nav aria-label="Principal">
+      <a href="inicio.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-6 8 6"/><path d="M6 10v9h12v-9"/></svg>Inicio</a>
+      <a href="pedidos.html" class="on" aria-current="page"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 7h12M8 12h12M8 17h12"/><circle cx="4" cy="7" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="17" r="1"/></svg>Pedidos</a>
+      <a href="perfil.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1.5-3.6 4-5 7-5s5.5 1.4 7 5"/></svg>Perfil</a>
+    </nav>
+    <div class="user">Leandro Valdez</div>
+  </div>
+</header>
+
+<header class="pagehead">
+  <div class="pagehead-inner">
+    <a class="icon-btn back" href="pedidos.html" aria-label="Volver"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a>
+    <div class="grow"><h1>Tu pedido</h1><div class="sub">Pedido #1042 · Plomería</div></div>
+  </div>
+</header>
+
+<main class="page">
+<div class="cols">
+  <div>
+    <div class="card">
+      <div class="status"><span class="status-dot pulse"></span><span class="status-text">Buscando profesional</span></div>
+      <p class="small muted" style="margin-top:8px;line-height:1.5">Le avisamos a <b>6 plomeros</b> de tu zona que están disponibles hoy. El de mejor puntaje tiene 5 minutos de prioridad; después lo puede tomar cualquiera. Te notificamos apenas uno acepte.</p>
+      <div class="row xsmall muted" style="margin-top:11px;gap:7px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg><span>El pedido vence en <b>28 min</b></span></div>
+    </div>
+    <a class="btn btn-ghost" href="#cancelar">Cancelar pedido</a>
+    <section class="proto" aria-label="Navegación del boceto">
+  <div class="proto-title">Boceto · qué pasa después</div>
+  <div class="chips">
+    <a class="chip" href="pedido-asignado.html">Un profesional acepta →</a>
+    <a class="chip" href="sin-profesionales.html">Nadie acepta en 30 min →</a>
+  </div>
+</section>
+  </div>
+  <div>
+    <div class="card">
+      <div class="row"><span class="chip">Plomería</span><span class="chip clay"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 3L6 13h5l-1 8 7-10h-5z"/></svg>Primero disponible</span><span class="ml-auto xsmall muted">#1042</span></div>
+      <p style="margin-top:10px;font-size:15px;font-weight:700">Pérdida de agua abajo de la pileta</p>
+      <p class="small" style="margin-top:4px;line-height:1.5">Pierde agua el caño de abajo de la pileta de la cocina. Ya cerré la llave de paso.</p>
+      <div class="kv" style="margin-top:10px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><div class="muted">Av. Cazadores 1240, Tigre</div></div>
+    </div>
+    <div class="card timeline" aria-label="Etapas del pedido">
+  <div class="tl-step done"><div class="tl-dot"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg></div><div class="tl-body"><div class="tl-title">Publicado</div><div class="tl-sub">Hoy 14:20</div></div></div>
+  <div class="tl-step now"><div class="tl-dot"></div><div class="tl-body"><div class="tl-title">Profesional asignado</div><div class="tl-sub">El de mejor puntaje tiene prioridad; si no responde, pasa al siguiente</div></div></div>
+  <div class="tl-step "><div class="tl-dot"></div><div class="tl-body"><div class="tl-title">Visita acordada por chat</div><div class="tl-sub">Pónganse de acuerdo en día y hora</div></div></div>
+  <div class="tl-step "><div class="tl-dot"></div><div class="tl-body"><div class="tl-title">Trabajo terminado</div><div class="tl-sub">Lo confirman los dos</div></div></div>
+  <div class="tl-step "><div class="tl-dot"></div><div class="tl-body"><div class="tl-title">Calificar el servicio</div><div class="tl-sub">Después de la visita</div></div></div>
+</div>
+  </div>
+</div>
+</main>
+
+<nav class="tabbar" aria-label="Secciones">
+  <a href="inicio.html"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-6 8 6"/><path d="M6 10v9h12v-9"/></svg><span>Inicio</span></a>
+  <a href="pedidos.html" class="on" aria-current="page"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 7h12M8 12h12M8 17h12"/><circle cx="4" cy="7" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="17" r="1"/></svg><span>Pedidos</span></a>
+  <a href="perfil.html"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1.5-3.6 4-5 7-5s5.5 1.4 7 5"/></svg><span>Perfil</span></a>
+</nav>
+</div>
+
+<div class="modal" id="cancelar" role="dialog" aria-modal="true" aria-labelledby="cancelar-titulo">
+  <a class="modal-bg" href="#" aria-label="Cerrar"></a>
+  <div class="modal-box">
+    <div class="modal-body">
+      <h2 id="cancelar-titulo">¿Cancelar el pedido?</h2>
+      <p>Los profesionales dejan de verlo. Podés publicarlo de nuevo cuando quieras.</p>
+    </div>
+    <div class="modal-actions">
+      <a class="btn btn-ghost" href="#">No</a>
+      <a class="btn btn-clay" href="pedidos.html">Sí, cancelar</a>
+    </div>
+  </div>
+</div>
+</body>
+</html>

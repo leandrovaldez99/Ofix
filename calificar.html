@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Calificar el servicio · Ofix</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=Public+Sans:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="app">
+<header class="sitebar">
+  <div class="sitebar-inner">
+    <a class="brand" href="inicio.html">Ofix</a>
+    <nav aria-label="Principal">
+      <a href="inicio.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-6 8 6"/><path d="M6 10v9h12v-9"/></svg>Inicio</a>
+      <a href="pedidos.html" class="on" aria-current="page"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 7h12M8 12h12M8 17h12"/><circle cx="4" cy="7" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="17" r="1"/></svg>Pedidos</a>
+      <a href="perfil.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1.5-3.6 4-5 7-5s5.5 1.4 7 5"/></svg>Perfil</a>
+    </nav>
+    <div class="user">Leandro Valdez</div>
+  </div>
+</header>
+
+<header class="pagehead">
+  <div class="pagehead-inner">
+    <a class="icon-btn back" href="pedidos.html" aria-label="Volver"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a>
+    <div class="grow"><h1>Calificar el servicio</h1></div>
+  </div>
+</header>
+
+<main class="page no-tabs">
+<form class="narrow" action="pedidos.html">
+  <div class="card row" style="gap:12px">
+    <div class="avatar clay" aria-hidden="true">SI</div>
+    <div><div style="font-size:15px;font-weight:700">Sergio Ibáñez</div><div class="xsmall muted">Electricidad · visita del 16/10</div></div>
+  </div>
+  <div class="card">
+    <p class="center" style="font-size:14px;font-weight:600;margin-bottom:12px">¿Cómo estuvo el servicio?</p>
+    <fieldset class="star-picker">
+      <legend class="sr-only">Puntuación de 1 a 5 estrellas</legend>
+    <input type="radio" id="e5" name="puntaje" value="5" required><label for="e5"><span class="sr-only">5 estrellas</span><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l2.4 5 5.6.8-4 3.9 1 5.5-5-2.7-5 2.7 1-5.5-4-3.9 5.6-.8z"/></svg></label>
+    <input type="radio" id="e4" name="puntaje" value="4" required checked><label for="e4"><span class="sr-only">4 estrellas</span><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l2.4 5 5.6.8-4 3.9 1 5.5-5-2.7-5 2.7 1-5.5-4-3.9 5.6-.8z"/></svg></label>
+    <input type="radio" id="e3" name="puntaje" value="3" required><label for="e3"><span class="sr-only">3 estrellas</span><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l2.4 5 5.6.8-4 3.9 1 5.5-5-2.7-5 2.7 1-5.5-4-3.9 5.6-.8z"/></svg></label>
+    <input type="radio" id="e2" name="puntaje" value="2" required><label for="e2"><span class="sr-only">2 estrellas</span><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l2.4 5 5.6.8-4 3.9 1 5.5-5-2.7-5 2.7 1-5.5-4-3.9 5.6-.8z"/></svg></label>
+    <input type="radio" id="e1" name="puntaje" value="1" required><label for="e1"><span class="sr-only">1 estrella</span><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l2.4 5 5.6.8-4 3.9 1 5.5-5-2.7-5 2.7 1-5.5-4-3.9 5.6-.8z"/></svg></label>
+    </fieldset>
+    <p class="center xsmall muted" style="margin-top:10px">1 = malo · 5 = excelente</p>
+  </div>
+  <div class="field"><label for="f-com">Comentá tu experiencia (opcional)</label>
+    <textarea class="textarea" id="f-com" name="comentario" rows="4" maxlength="500" placeholder="Llegó puntual, dejó todo limpio…"></textarea></div>
+  <div class="note"><p>Tu puntaje actualiza el promedio del profesional y se ve en su perfil junto al comentario.</p></div>
+  <button class="btn btn-clay" type="submit">Enviar calificación</button>
+  <a class="link-btn center" href="inicio.html">Ahora no</a>
+</form>
+</main>
+</div>
+</body>
+</html>

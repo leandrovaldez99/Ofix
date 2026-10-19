@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Zona y disponibilidad · Ofix</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=Public+Sans:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="rol-profesional">
+<div class="app">
+<header class="sitebar">
+  <div class="sitebar-inner">
+    <a class="brand" href="trabajos.html">Ofix</a>
+    <nav aria-label="Principal">
+      <a href="trabajos.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 7h12M8 12h12M8 17h12"/><circle cx="4" cy="7" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="17" r="1"/></svg>Trabajos</a>
+      <a href="chats.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 15a3 3 0 0 1-3 3H8l-4 3V6a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3z"/></svg>Chats</a>
+      <a href="cuenta.html" class="on" aria-current="page"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1.5-3.6 4-5 7-5s5.5 1.4 7 5"/></svg>Mi cuenta</a>
+    </nav>
+    <div class="user">Marcos Gómez</div>
+  </div>
+</header>
+
+<header class="pagehead dark">
+  <div class="pagehead-inner">
+    <a class="icon-btn back" href="cuenta.html" aria-label="Volver"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a>
+    <div class="grow"><h1>Zona y disponibilidad</h1></div>
+  </div>
+</header>
+
+<main class="page no-tabs">
+<form class="narrow" action="cuenta.html">
+  <div class="card">
+    <div class="row">
+      <label class="grow" for="f-hoy" style="font-size:14px;font-weight:700">Disponible hoy para pedidos urgentes</label>
+      <input type="checkbox" class="switch" role="switch" id="f-hoy" name="hoy" checked>
+    </div>
+  </div>
+  <div class="field"><span class="field-label" id="lbl-ofi">Mis oficios</span>
+    <div class="chips" role="group" aria-labelledby="lbl-ofi">
+      <label class="chip"><input class="sr-only" type="checkbox" name="oficio" value="plomeria" checked>Plomería</label>
+      <label class="chip"><input class="sr-only" type="checkbox" name="oficio" value="gas" checked>Gas</label>
+      <label class="chip"><input class="sr-only" type="checkbox" name="oficio" value="electricidad">Electricidad</label>
+      <label class="chip"><input class="sr-only" type="checkbox" name="oficio" value="pintura">Pintura</label>
+      <label class="chip"><input class="sr-only" type="checkbox" name="oficio" value="carpinteria">Carpintería</label>
+      <label class="chip"><input class="sr-only" type="checkbox" name="oficio" value="cerrajeria">Cerrajería</label>
+    </div>
+  </div>
+  <div class="field"><label for="f-desc">Descripción de tu perfil</label>
+    <textarea class="textarea" id="f-desc" name="descripcion" rows="3" maxlength="255">Plomero matriculado. Destapaciones, pérdidas, instalación de termotanques. Trabajo con factura.</textarea></div>
+  <div class="form-grid two">
+    <div class="field"><label for="f-localidad">Localidad base</label><select class="select" id="f-localidad" name="localidad"><option selected>Tigre</option><option>Don Torcuato</option><option>Benavídez</option><option>General Pacheco</option><option>San Fernando</option><option>Nordelta</option><option>Victoria</option><option>Rincón de Milberg</option><option>El Talar</option><option>San Isidro</option></select></div>
+    <div class="field"><label for="f-radio">Radio de cobertura</label><select class="select" id="f-radio" name="radio"><option value="5">5 km</option><option value="10" selected>10 km</option><option value="15">15 km</option><option value="20">20 km</option><option value="30">30 km</option></select></div>
+  </div>
+  <div class="field"><span class="field-label">Horarios en los que recibo pedidos</span>
+<div class="card" style="padding:6px 12px">
+  <div class="row" style="min-height:52px;">
+    <label class="row grow" style="gap:8px;font-size:14px;font-weight:600"><input type="checkbox" name="dia-0" checked style="width:18px;height:18px;accent-color:var(--accent)"> Lun</label>
+    <label class="sr-only" for="desde-0">Desde (Lun)</label>
+    <input class="input" type="time" id="desde-0" name="desde-0" value="08:00" style="width:112px;height:40px">
+    <span class="muted small">a</span>
+    <label class="sr-only" for="hasta-0">Hasta (Lun)</label>
+    <input class="input" type="time" id="hasta-0" name="hasta-0" value="18:00" style="width:112px;height:40px">
+  </div>
+  <div class="row" style="min-height:52px;border-top:1px solid var(--line)">
+    <label class="row grow" style="gap:8px;font-size:14px;font-weight:600"><input type="checkbox" name="dia-1" checked style="width:18px;height:18px;accent-color:var(--accent)"> Mar</label>
+    <label class="sr-only" for="desde-1">Desde (Mar)</label>
+    <input class="input" type="time" id="desde-1" name="desde-1" value="08:00" style="width:112px;height:40px">
+    <span class="muted small">a</span>
+    <label class="sr-only" for="hasta-1">Hasta (Mar)</label>
+    <input class="input" type="time" id="hasta-1" name="hasta-1" value="18:00" style="width:112px;height:40px">
+  </div>
+  <div class="row" style="min-height:52px;border-top:1px solid var(--line)">
+    <label class="row grow" style="gap:8px;font-size:14px;font-weight:600"><input type="checkbox" name="dia-2" checked style="width:18px;height:18px;accent-color:var(--accent)"> Mié</label>
+    <label class="sr-only" for="desde-2">Desde (Mié)</label>
+    <input class="input" type="time" id="desde-2" name="desde-2" value="08:00" style="width:112px;height:40px">
+    <span class="muted small">a</span>
+    <label class="sr-only" for="hasta-2">Hasta (Mié)</label>
+    <input class="input" type="time" id="hasta-2" name="hasta-2" value="18:00" style="width:112px;height:40px">
+  </div>
+  <div class="row" style="min-height:52px;border-top:1px solid var(--line)">
+    <label class="row grow" style="gap:8px;font-size:14px;font-weight:600"><input type="checkbox" name="dia-3" checked style="width:18px;height:18px;accent-color:var(--accent)"> Jue</label>
+    <label class="sr-only" for="desde-3">Desde (Jue)</label>
+    <input class="input" type="time" id="desde-3" name="desde-3" value="08:00" style="width:112px;height:40px">
+    <span class="muted small">a</span>
+    <label class="sr-only" for="hasta-3">Hasta (Jue)</label>
+    <input class="input" type="time" id="hasta-3" name="hasta-3" value="18:00" style="width:112px;height:40px">
+  </div>
+  <div class="row" style="min-height:52px;border-top:1px solid var(--line)">
+    <label class="row grow" style="gap:8px;font-size:14px;font-weight:600"><input type="checkbox" name="dia-4" checked style="width:18px;height:18px;accent-color:var(--accent)"> Vie</label>
+    <label class="sr-only" for="desde-4">Desde (Vie)</label>
+    <input class="input" type="time" id="desde-4" name="desde-4" value="08:00" style="width:112px;height:40px">
+    <span class="muted small">a</span>
+    <label class="sr-only" for="hasta-4">Hasta (Vie)</label>
+    <input class="input" type="time" id="hasta-4" name="hasta-4" value="18:00" style="width:112px;height:40px">
+  </div>
+  <div class="row" style="min-height:52px;border-top:1px solid var(--line)">
+    <label class="row grow" style="gap:8px;font-size:14px;font-weight:600"><input type="checkbox" name="dia-5" checked style="width:18px;height:18px;accent-color:var(--accent)"> Sáb</label>
+    <label class="sr-only" for="desde-5">Desde (Sáb)</label>
+    <input class="input" type="time" id="desde-5" name="desde-5" value="09:00" style="width:112px;height:40px">
+    <span class="muted small">a</span>
+    <label class="sr-only" for="hasta-5">Hasta (Sáb)</label>
+    <input class="input" type="time" id="hasta-5" name="hasta-5" value="13:00" style="width:112px;height:40px">
+  </div>
+  <div class="row" style="min-height:52px;border-top:1px solid var(--line)">
+    <label class="row grow" style="gap:8px;font-size:14px;font-weight:600"><input type="checkbox" name="dia-6" style="width:18px;height:18px;accent-color:var(--accent)"> Dom</label>
+    <label class="sr-only" for="desde-6">Desde (Dom)</label>
+    <input class="input" type="time" id="desde-6" name="desde-6" value="09:00" style="width:112px;height:40px">
+    <span class="muted small">a</span>
+    <label class="sr-only" for="hasta-6">Hasta (Dom)</label>
+    <input class="input" type="time" id="hasta-6" name="hasta-6" value="13:00" style="width:112px;height:40px">
+  </div>
+</div>
+  </div>
+  <button class="btn btn-green" type="submit">Guardar cambios</button>
+</form>
+</main>
+</div>
+</body>
+</html>

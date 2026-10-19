@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Registro de profesional · Ofix</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=Public+Sans:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="rol-profesional">
+<div class="auth">
+<aside class="auth-side">
+  <div class="brand">Ofix</div>
+  <div class="stack" style="gap:36px">
+    <h2>El oficio que necesitás, cerca tuyo.</h2>
+    <div class="how">
+      <div class="how-item"><span class="how-num">1</span><div><b>Contá tu problema</b><span>Elegí el oficio, describí qué pasa y dónde.</span></div></div>
+      <div class="how-item"><span class="how-num">2</span><div><b>Te contesta un profesional</b><span>Se lo ofrecemos al más cercano y mejor calificado, o lo elegís vos.</span></div></div>
+      <div class="how-item"><span class="how-num">3</span><div><b>Coordinan por chat</b><span>Acuerdan día y hora. Después calificás el servicio.</span></div></div>
+    </div>
+  </div>
+  <div class="foot">Ocampo, Bárbara M. · Romero, Benjamín H. · Valdez, Leandro J.</div>
+</aside>
+<main class="auth-main" style="justify-content:flex-start;padding-top:28px">
+  <div class="row">
+    <a class="icon-btn back" href="index.html" aria-label="Volver"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a>
+    <div class="grow"><h1 style="font-size:22px">Registrarme como profesional</h1><div class="small muted">Paso 1 de 2 · Tus datos</div></div>
+  </div>
+  <div class="steps" aria-hidden="true"><span class="on"></span><span class=""></span></div>
+
+  <form class="form-grid two" action="registro-profesional-2.html">
+    <div class="field"><label for="f-nombre">Nombre</label><input class="input" id="f-nombre" name="nombre" type="text" autocomplete="given-name" required></div>
+    <div class="field"><label for="f-apellido">Apellido</label><input class="input" id="f-apellido" name="apellido" type="text" autocomplete="family-name" required></div>
+    <div class="field span-2"><label for="f-email">Correo electrónico</label><input class="input" id="f-email" name="email" type="email" placeholder="tunombre@mail.com" autocomplete="email" required></div>
+    <div class="field span-2"><label for="f-telefono">Teléfono</label><input class="input" id="f-telefono" name="telefono" type="tel" placeholder="11 5555-1234" autocomplete="tel" required></div>
+    <div class="field span-2"><label for="f-password">Contraseña</label><input class="input" id="f-password" name="password" type="password" placeholder="Mínimo 8 caracteres" autocomplete="new-password" minlength="8" required></div>
+    <div class="span-2 stack-sm">
+      <button class="btn btn-green" type="submit">Continuar</button>
+      <a class="btn btn-ghost" href="index.html">Cancelar</a>
+    </div>
+  </form>
+</main>
+</div>
+</body>
+</html>
