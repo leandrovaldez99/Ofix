@@ -55,10 +55,6 @@ En la pantalla de ingreso hay accesos directos para entrar como cliente o como p
 
 No hay medios de pago: el trabajo y el cobro se arreglan entre cliente y profesional, fuera de la app.
 
-## Cómo funcionan las partes interactivas sin JavaScript
-
-- **Formularios**: al enviarlos van a la pantalla siguiente (atributo `action`). Los campos obligatorios usan la validación propia del navegador (`required`, `type="email"`, `minlength`).
-- **Chips de filtros y oficios**: son `radio` o `checkbox` ocultos dentro de un `<label class="chip">`. El CSS los pinta cuando están marcados.
 - **Estrellas de calificación**: son `radio` y se pintan con CSS.
 - **Interruptor "disponible hoy"**: es un `checkbox` con estilo.
 - **Diálogos de confirmación** (cancelar pedido, rechazar, eliminar cuenta): son bloques `<div class="modal" id="...">` que se abren con un enlace a `#id` y se cierran con un enlace a `#`.
