@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=Public+Sans:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="css/styles.css">
 </head>
-<body>
+<body class="cargando">
 <div class="app">
 <header class="sitebar">
   <div class="sitebar-inner">
@@ -19,7 +19,7 @@
       <a href="pedidos.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 7h12M8 12h12M8 17h12"/><circle cx="4" cy="7" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="17" r="1"/></svg>Pedidos</a>
       <a href="perfil.html" class="on" aria-current="page"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1.5-3.6 4-5 7-5s5.5 1.4 7 5"/></svg>Perfil</a>
     </nav>
-    <div class="user">Leandro Valdez</div>
+    <div class="user"></div>
   </div>
 </header>
 
@@ -33,20 +33,14 @@
 <div class="cols">
   <div>
     <div class="card row" style="gap:14px">
-      <div class="avatar clay lg" aria-hidden="true">LV</div>
-      <div class="grow"><h2 style="font-size:19px">Leandro Valdez</h2><div class="small muted">leandro@ofix.com</div><div class="xsmall muted">Cliente desde agosto de 2026</div></div>
+      <div class="avatar lg" id="av" aria-hidden="true"></div>
+      <div class="grow"><h2 style="font-size:19px" id="nombre"></h2><div class="small muted" id="email"></div><div class="xsmall muted" id="desde"></div></div>
     </div>
     <h2 class="section-title">Mis direcciones</h2>
-    <div class="card" style="padding:4px 14px">
-      <div class="row" style="min-height:58px">
-        <span class="muted"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span>
-        <div class="grow small"><div style="font-weight:600">Av. Cazadores 1240</div><div class="xsmall muted">Tigre · CP 1648</div></div>
-        <span class="chip green">Principal</span>
-      </div>
-    </div>
+    <div class="card" style="padding:4px 14px" id="direcciones"></div>
     <details class="card">
       <summary style="cursor:pointer;font-size:14px;font-weight:600">+ Agregar dirección</summary>
-      <form class="form-grid two" style="margin-top:12px" action="perfil.html">
+      <form class="form-grid two" style="margin-top:12px" id="form-dir">
         <div class="field"><label for="f-calle">Calle</label><input class="input" id="f-calle" name="calle" type="text" autocomplete="address-line1" required></div>
         <div class="field"><label for="f-numero">Altura</label><input class="input" id="f-numero" name="numero" type="text" inputmode="numeric" required></div>
         <div class="field"><label for="f-loc">Localidad</label><select class="select" id="f-loc" name="localidad"><option selected>Tigre</option><option>Don Torcuato</option><option>Benavídez</option><option>General Pacheco</option><option>San Fernando</option><option>Nordelta</option><option>Victoria</option><option>Rincón de Milberg</option><option>El Talar</option><option>San Isidro</option></select></div>
@@ -57,17 +51,17 @@
   </div>
   <div>
     <h2 class="section-title">Datos personales</h2>
-    <form class="card form-grid two" action="perfil.html">
-      <div class="field"><label for="f-nombre">Nombre</label><input class="input" id="f-nombre" name="nombre" type="text" value="Leandro" autocomplete="given-name" required></div>
-      <div class="field"><label for="f-apellido">Apellido</label><input class="input" id="f-apellido" name="apellido" type="text" value="Valdez" autocomplete="family-name" required></div>
-      <div class="field span-2"><label for="f-email">Correo electrónico</label><input class="input" id="f-email" name="email" type="email" value="leandro@ofix.com" autocomplete="email" required></div>
-      <div class="field span-2"><label for="f-telefono">Teléfono</label><input class="input" id="f-telefono" name="telefono" type="tel" value="11 5555-1234" autocomplete="tel" required></div>
+    <form class="card form-grid two" id="form-datos">
+      <div class="field"><label for="f-nombre">Nombre</label><input class="input" id="f-nombre" name="nombre" type="text" autocomplete="given-name" required></div>
+      <div class="field"><label for="f-apellido">Apellido</label><input class="input" id="f-apellido" name="apellido" type="text" autocomplete="family-name" required></div>
+      <div class="field span-2"><label for="f-email">Correo electrónico</label><input class="input" id="f-email" name="email" type="email" autocomplete="email" required></div>
+      <div class="field span-2"><label for="f-telefono">Teléfono</label><input class="input" id="f-telefono" name="telefono" type="tel" autocomplete="tel" required></div>
       <div class="field span-2"><label for="f-password">Nueva contraseña (opcional)</label><input class="input" id="f-password" name="password" type="password" placeholder="Dejala vacía para no cambiarla" autocomplete="new-password" minlength="8"></div>
       <button class="btn btn-primary span-2" type="submit">Guardar cambios</button>
     </form>
     <div class="card stack-sm">
       <div class="note" style="border:none;padding:6px 0;background:none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg><p>Tu teléfono y tu dirección exacta solo los ve la otra parte de un pedido confirmado. En los avisos solo se muestra tu nombre y la inicial del apellido.</p></div>
-      <a class="btn btn-ghost" href="index.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 5H5v14h5"/><path d="M14 8l4 4-4 4"/><path d="M18 12H9"/></svg>Cerrar sesión</a>
+      <a class="btn btn-ghost" href="index.html" id="btn-salir"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 5H5v14h5"/><path d="M14 8l4 4-4 4"/><path d="M18 12H9"/></svg>Cerrar sesión</a>
       <a class="btn btn-danger" href="#eliminar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7h14"/><path d="M9 7V4.5h6V7"/><path d="M7 7l1 13h8l1-13"/></svg>Eliminar mi cuenta</a>
     </div>
   </div>
@@ -94,5 +88,6 @@
     </div>
   </div>
 </div>
+<script type="module" src="js/paginas/perfil.js"></script>
 </body>
 </html>

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Nueva contraseña · Ofix</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=Public+Sans:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="auth">
+<aside class="auth-side">
+  <div class="brand">Ofix</div>
+  <div class="stack" style="gap:36px">
+    <h2>El oficio que necesitás, cerca tuyo.</h2>
+    <div class="how">
+      <div class="how-item"><span class="how-num">1</span><div><b>Contá tu problema</b><span>Elegí el oficio, describí qué pasa y dónde.</span></div></div>
+      <div class="how-item"><span class="how-num">2</span><div><b>Te contesta un profesional</b><span>Se lo ofrecemos al más cercano y mejor calificado, o lo elegís vos.</span></div></div>
+      <div class="how-item"><span class="how-num">3</span><div><b>Coordinan por chat</b><span>Acuerdan día y hora. Después calificás el servicio.</span></div></div>
+    </div>
+  </div>
+  <div class="foot">Ocampo, Bárbara M. · Romero, Benjamín H. · Valdez, Leandro J.</div>
+</aside>
+<main class="auth-main">
+  <div><h1 style="font-size:22px">Elegí una contraseña nueva</h1><div class="small muted">Vas a usarla para ingresar con tu correo</div></div>
+  <form class="stack" id="form-clave" novalidate>
+    <input type="email" name="username" autocomplete="username" hidden>
+    <div class="field"><label for="f-password">Contraseña nueva</label><input class="input" id="f-password" name="password" type="password" placeholder="Mínimo 8 caracteres" autocomplete="new-password" minlength="8" required></div>
+    <button class="btn btn-clay" type="submit">Guardar y entrar</button>
+    <a class="btn btn-ghost" href="index.html">Cancelar</a>
+  </form>
+</main>
+</div>
+<script type="module" src="js/paginas/nueva-contrasena.js"></script>
+</body>
+</html>

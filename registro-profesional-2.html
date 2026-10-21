@@ -25,12 +25,12 @@
 </aside>
 <main class="auth-main" style="justify-content:flex-start;padding-top:28px">
   <div class="row">
-    <a class="icon-btn back" href="registro-profesional.html" aria-label="Volver"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a>
+    <a class="icon-btn back" href="index.html" aria-label="Volver"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a>
     <div class="grow"><h1 style="font-size:22px">Registrarme como profesional</h1><div class="small muted">Paso 2 de 2 · Tu oficio y zona</div></div>
   </div>
   <div class="steps" aria-hidden="true"><span class="on"></span><span class="on"></span></div>
 
-  <form class="stack" action="validacion-pendiente.html">
+  <form class="stack" id="form-ficha" novalidate>
     <div class="field"><span class="field-label" id="lbl-ofi">Oficios que ofrecés</span>
       <div class="chips" role="group" aria-labelledby="lbl-ofi">
       <label class="chip"><input class="sr-only" type="checkbox" name="oficio" value="plomeria" checked>Plomería</label>
@@ -42,7 +42,7 @@
       </div>
     </div>
     <div class="field"><label for="f-desc">Contá brevemente qué hacés (opcional)</label>
-      <textarea class="textarea" id="f-desc" name="descripcion" rows="3" placeholder="Ej.: Plomero matriculado, destapaciones y termotanques."></textarea></div>
+      <textarea class="textarea" id="f-desc" name="descripcion" rows="3" maxlength="255" placeholder="Ej.: Plomero matriculado, destapaciones y termotanques."></textarea></div>
     <div class="form-grid two">
       <div class="field"><label for="f-localidad">Localidad base</label><select class="select" id="f-localidad" name="localidad"><option selected>Tigre</option><option>Don Torcuato</option><option>Benavídez</option><option>General Pacheco</option><option>San Fernando</option><option>Nordelta</option><option>Victoria</option><option>Rincón de Milberg</option><option>El Talar</option><option>San Isidro</option></select></div>
       <div class="field"><label for="f-radio">Radio de cobertura</label><select class="select" id="f-radio" name="radio"><option value="5">5 km</option><option value="10" selected>10 km</option><option value="15">15 km</option><option value="20">20 km</option><option value="30">30 km</option></select></div>
@@ -113,9 +113,10 @@
       <input class="input" type="file" id="f-cert" name="certificados" accept="image/*,.pdf" multiple style="padding-top:11px"></div>
     <div class="note"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg><p>Tu perfil queda <b>pendiente de validación</b> hasta que revisemos tu identidad y los certificados. Mientras tanto no recibís pedidos.</p></div>
     <button class="btn btn-green" type="submit">Enviar para validación</button>
-    <a class="btn btn-ghost" href="registro-profesional.html">Volver al paso 1</a>
+    <button class="btn btn-ghost" type="button" id="btn-salir">Salir</button>
   </form>
 </main>
 </div>
+<script type="module" src="js/paginas/registro-profesional-2.js"></script>
 </body>
 </html>

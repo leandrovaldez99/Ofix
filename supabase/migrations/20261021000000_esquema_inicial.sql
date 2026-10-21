@@ -1,0 +1,779 @@
+-- ============================================================
+-- Ofix — esquema inicial
+-- Tablas, seguridad por filas (RLS), funciones del flujo de
+-- pedidos y almacenamiento de archivos.
+-- ============================================================
+
+-- Funciones auxiliares que no se exponen en la API
+create schema if not exists private;
+grant usage on schema private to authenticated;
+
+-- ---------- Catálogos ----------
+
+create table public.oficios (
+  id text primary key,
+  nombre text not null,
+  orden smallint not null
+);
+
+insert into public.oficios (id, nombre, orden) values
+  ('plomeria', 'Plomería', 1),
+  ('gas', 'Gas', 2),
+  ('electricidad', 'Electricidad', 3),
+  ('pintura', 'Pintura', 4),
+  ('carpinteria', 'Carpintería', 5),
+  ('cerrajeria', 'Cerrajería', 6);
+
+-- Coordenadas aproximadas del centro de cada localidad, para calcular distancias
+create table public.localidades (
+  nombre text primary key,
+  lat double precision not null,
+  lng double precision not null
+);
+
+insert into public.localidades (nombre, lat, lng) values
+  ('Tigre', -34.4260, -58.5797),
+  ('Don Torcuato', -34.4900, -58.6270),
+  ('Benavídez', -34.4110, -58.6930),
+  ('General Pacheco', -34.4600, -58.6400),
+  ('San Fernando', -34.4420, -58.5590),
+  ('Nordelta', -34.4050, -58.6450),
+  ('Victoria', -34.4540, -58.5460),
+  ('Rincón de Milberg', -34.4040, -58.5970),
+  ('El Talar', -34.4720, -58.6550),
+  ('San Isidro', -34.4710, -58.5280);
+
+-- ---------- Usuarios ----------
+
+-- Datos visibles para cualquier usuario registrado
+create table public.perfiles (
+  id uuid primary key references auth.users on delete cascade,
+  rol text not null check (rol in ('cliente', 'profesional')),
+  nombre text not null check (char_length(nombre) between 1 and 60),
+  apellido text not null check (char_length(apellido) between 1 and 60),
+  created_at timestamptz not null default now()
+);
+
+-- Teléfono: solo lo ve la otra parte de un pedido confirmado
+create table public.contactos (
+  id uuid primary key references public.perfiles on delete cascade,
+  telefono text not null check (char_length(telefono) between 6 and 30)
+);
+
+create table public.direcciones (
+  id bigint generated always as identity primary key,
+  cliente_id uuid not null default auth.uid() references public.perfiles on delete cascade,
+  calle text not null check (char_length(calle) between 1 and 100),
+  numero text not null check (char_length(numero) between 1 and 10),
+  localidad text not null references public.localidades,
+  cp text check (char_length(cp) <= 10),
+  principal boolean not null default false,
+  created_at timestamptz not null default now()
+);
+create index on public.direcciones (cliente_id);
+
+create table public.profesionales (
+  id uuid primary key references public.perfiles on delete cascade,
+  descripcion text check (char_length(descripcion) <= 255),
+  localidad text not null references public.localidades,
+  radio_km smallint not null default 10 check (radio_km between 1 and 50),
+  -- "Disponible hoy" vale solo para el día en que se activó
+  disponible_fecha date,
+  estado_validacion text not null default 'pendiente'
+    check (estado_validacion in ('pendiente', 'validado', 'rechazado')),
+  created_at timestamptz not null default now()
+);
+create index on public.profesionales (localidad);
+
+create table public.profesional_oficios (
+  profesional_id uuid not null references public.profesionales on delete cascade,
+  oficio_id text not null references public.oficios,
+  primary key (profesional_id, oficio_id)
+);
+create index on public.profesional_oficios (oficio_id);
+
+-- dia: 0 = lunes … 6 = domingo
+create table public.horarios (
+  profesional_id uuid not null references public.profesionales on delete cascade,
+  dia smallint not null check (dia between 0 and 6),
+  desde time not null,
+  hasta time not null,
+  primary key (profesional_id, dia),
+  check (desde < hasta)
+);
+
+create table public.documentos (
+  id bigint generated always as identity primary key,
+  profesional_id uuid not null default auth.uid() references public.profesionales on delete cascade,
+  tipo text not null check (tipo in ('dni', 'certificado')),
+  nombre text not null check (char_length(nombre) between 1 and 120),
+  entidad text check (char_length(entidad) <= 120),
+  archivo text not null,
+  estado text not null default 'en_revision' check (estado in ('en_revision', 'verificado', 'rechazado')),
+  created_at timestamptz not null default now()
+);
+create index on public.documentos (profesional_id);
+
+-- ---------- Pedidos ----------
+
+-- estado:
+--   borrador   → el cliente eligió "Quiero elegir yo" y todavía no eligió
+--   buscando   → ofrecido a profesionales (vencido si vence_at ya pasó)
+--   asignado   → un profesional aceptó; falta que el cliente lo confirme
+--   confirmado → chat abierto, se acuerda la visita
+--   terminado  → los dos marcaron el trabajo como terminado
+--   cancelado
+create table public.pedidos (
+  id bigint generated by default as identity (start with 1000) primary key,
+  cliente_id uuid not null references public.perfiles on delete cascade,
+  oficio_id text not null references public.oficios,
+  titulo text not null check (char_length(titulo) between 3 and 80),
+  descripcion text not null check (char_length(descripcion) between 1 and 1000),
+  direccion_id bigint references public.direcciones on delete set null,
+  localidad text not null references public.localidades,
+  modo text not null check (modo in ('primero', 'elegido')),
+  radio_km smallint not null default 10 check (radio_km between 1 and 50),
+  estado text not null default 'buscando'
+    check (estado in ('borrador', 'buscando', 'asignado', 'confirmado', 'terminado', 'cancelado')),
+  profesional_id uuid references public.perfiles on delete set null,
+  vence_at timestamptz,
+  asignado_at timestamptz,
+  confirmado_at timestamptz,
+  visita_at timestamptz,
+  terminado_cliente boolean not null default false,
+  terminado_profesional boolean not null default false,
+  terminado_at timestamptz,
+  cancelado_at timestamptz,
+  cancelado_por uuid,
+  created_at timestamptz not null default now()
+);
+create index on public.pedidos (cliente_id);
+create index on public.pedidos (profesional_id);
+create index on public.pedidos (direccion_id);
+
+-- A qué profesionales se les ofreció cada pedido
+create table public.ofertas (
+  pedido_id bigint not null references public.pedidos on delete cascade,
+  profesional_id uuid not null references public.profesionales on delete cascade,
+  visible_desde timestamptz not null default now(),
+  prioridad_hasta timestamptz,
+  elegido boolean not null default false,
+  estado text not null default 'pendiente'
+    check (estado in ('pendiente', 'aceptada', 'rechazada', 'no_disponible')),
+  created_at timestamptz not null default now(),
+  primary key (pedido_id, profesional_id)
+);
+create index on public.ofertas (profesional_id);
+
+create table public.mensajes (
+  id bigint generated always as identity primary key,
+  pedido_id bigint not null references public.pedidos on delete cascade,
+  autor_id uuid default auth.uid() references public.perfiles on delete set null,
+  texto text not null check (char_length(texto) between 1 and 2000),
+  created_at timestamptz not null default now()
+);
+create index on public.mensajes (pedido_id, created_at);
+create index on public.mensajes (autor_id);
+
+create table public.resenas (
+  pedido_id bigint primary key references public.pedidos on delete cascade,
+  profesional_id uuid not null references public.profesionales on delete cascade,
+  cliente_id uuid references public.perfiles on delete set null,
+  puntaje smallint not null check (puntaje between 1 and 5),
+  comentario text check (char_length(comentario) <= 500),
+  created_at timestamptz not null default now()
+);
+create index on public.resenas (profesional_id);
+create index on public.resenas (cliente_id);
+
+-- ---------- Funciones auxiliares (esquema privado) ----------
+
+create function private.hoy() returns date
+language sql stable set search_path = ''
+as $$ select (now() at time zone 'America/Argentina/Buenos_Aires')::date $$;
+
+create function private.distancia_km(a text, b text) returns double precision
+language sql stable set search_path = ''
+as $$
+  select 6371 * 2 * asin(sqrt(
+    power(sin(radians(lb.lat - la.lat) / 2), 2) +
+    cos(radians(la.lat)) * cos(radians(lb.lat)) * power(sin(radians(lb.lng - la.lng) / 2), 2)
+  ))
+  from public.localidades la, public.localidades lb
+  where la.nombre = a and lb.nombre = b
+$$;
+
+create function private.es_cliente_pedido(p bigint) returns boolean
+language sql stable security definer set search_path = ''
+as $$ select exists (select 1 from public.pedidos where id = p and cliente_id = (select auth.uid())) $$;
+
+create function private.es_parte_pedido(p bigint) returns boolean
+language sql stable security definer set search_path = ''
+as $$
+  select exists (
+    select 1 from public.pedidos
+    where id = p and (cliente_id = (select auth.uid()) or profesional_id = (select auth.uid()))
+  )
+$$;
+
+create function private.tengo_oferta(p bigint) returns boolean
+language sql stable security definer set search_path = ''
+as $$
+  select exists (
+    select 1 from public.ofertas
+    where pedido_id = p and profesional_id = (select auth.uid()) and visible_desde <= now()
+  )
+$$;
+
+create function private.puede_ver_pedido(p bigint) returns boolean
+language sql stable set search_path = ''
+as $$ select private.es_parte_pedido(p) or private.tengo_oferta(p) $$;
+
+-- ¿Hay un pedido confirmado entre el usuario actual y otra persona?
+create function private.confirmado_con(otro uuid) returns boolean
+language sql stable security definer set search_path = ''
+as $$
+  select exists (
+    select 1 from public.pedidos
+    where estado in ('confirmado', 'terminado')
+      and ((cliente_id = (select auth.uid()) and profesional_id = otro)
+        or (profesional_id = (select auth.uid()) and cliente_id = otro))
+  )
+$$;
+
+-- ¿La dirección es de un pedido confirmado con el profesional actual?
+create function private.direccion_visible(d bigint) returns boolean
+language sql stable security definer set search_path = ''
+as $$
+  select exists (
+    select 1 from public.pedidos
+    where direccion_id = d and profesional_id = (select auth.uid())
+      and estado in ('confirmado', 'terminado')
+  )
+$$;
+
+create function private.chat_abierto(p bigint) returns boolean
+language sql stable security definer set search_path = ''
+as $$
+  select exists (
+    select 1 from public.pedidos
+    where id = p and estado = 'confirmado'
+      and (cliente_id = (select auth.uid()) or profesional_id = (select auth.uid()))
+  )
+$$;
+
+-- Primer tramo de la ruta de un archivo ("1042/foto.jpg" → 1042)
+create function private.pedido_de_ruta(ruta text) returns bigint
+language sql immutable set search_path = ''
+as $$
+  select case when split_part(ruta, '/', 1) ~ '^[0-9]{1,18}$'
+    then split_part(ruta, '/', 1)::bigint end
+$$;
+
+-- Trabajos terminados de un profesional (los pedidos ajenos no se ven por RLS)
+create function private.servicios(pro uuid) returns int
+language sql stable security definer set search_path = ''
+as $$ select count(*)::int from public.pedidos where profesional_id = pro and estado = 'terminado' $$;
+
+grant execute on all functions in schema private to authenticated;
+
+-- Una sola dirección principal por cliente; la primera queda como principal
+create function private.direccion_principal() returns trigger
+language plpgsql set search_path = ''
+as $$
+begin
+  if not exists (select 1 from public.direcciones where cliente_id = new.cliente_id and id <> new.id) then
+    new.principal := true;
+  end if;
+  if new.principal then
+    update public.direcciones set principal = false
+    where cliente_id = new.cliente_id and id <> new.id and principal;
+  end if;
+  return new;
+end;
+$$;
+
+create trigger direccion_principal before insert or update of principal on public.direcciones
+for each row execute function private.direccion_principal();
+
+-- ---------- Vista pública de profesionales ----------
+
+create view public.profesionales_publicos with (security_invoker = true) as
+select
+  p.id,
+  pf.nombre,
+  pf.apellido,
+  p.descripcion,
+  p.localidad,
+  p.radio_km,
+  p.estado_validacion,
+  p.created_at,
+  (p.disponible_fecha = private.hoy()) as disponible_hoy,
+  exists (
+    select 1 from public.documentos d
+    where d.profesional_id = p.id and d.tipo = 'certificado' and d.estado = 'verificado'
+  ) as matriculado,
+  coalesce((select array_agg(o.oficio_id order by of.orden)
+            from public.profesional_oficios o join public.oficios of on of.id = o.oficio_id
+            where o.profesional_id = p.id), '{}') as oficios,
+  (select round(avg(r.puntaje)::numeric, 1) from public.resenas r where r.profesional_id = p.id) as promedio,
+  (select count(*) from public.resenas r where r.profesional_id = p.id)::int as cantidad_resenas,
+  private.servicios(p.id) as servicios
+from public.profesionales p
+join public.perfiles pf on pf.id = p.id;
+
+-- ---------- RLS ----------
+
+alter table public.oficios enable row level security;
+alter table public.localidades enable row level security;
+alter table public.perfiles enable row level security;
+alter table public.contactos enable row level security;
+alter table public.direcciones enable row level security;
+alter table public.profesionales enable row level security;
+alter table public.profesional_oficios enable row level security;
+alter table public.horarios enable row level security;
+alter table public.documentos enable row level security;
+alter table public.pedidos enable row level security;
+alter table public.ofertas enable row level security;
+alter table public.mensajes enable row level security;
+alter table public.resenas enable row level security;
+
+create policy "catálogo público" on public.oficios for select to anon, authenticated using (true);
+create policy "catálogo público" on public.localidades for select to anon, authenticated using (true);
+
+create policy "ver perfiles" on public.perfiles for select to authenticated using (true);
+create policy "crear mi perfil" on public.perfiles for insert to authenticated
+  with check ((select auth.uid()) = id);
+create policy "editar mi perfil" on public.perfiles for update to authenticated
+  using ((select auth.uid()) = id) with check ((select auth.uid()) = id);
+
+create policy "ver contacto" on public.contactos for select to authenticated
+  using ((select auth.uid()) = id or private.confirmado_con(id));
+create policy "crear mi contacto" on public.contactos for insert to authenticated
+  with check ((select auth.uid()) = id);
+create policy "editar mi contacto" on public.contactos for update to authenticated
+  using ((select auth.uid()) = id) with check ((select auth.uid()) = id);
+
+create policy "ver direcciones" on public.direcciones for select to authenticated
+  using ((select auth.uid()) = cliente_id or private.direccion_visible(id));
+create policy "crear mis direcciones" on public.direcciones for insert to authenticated
+  with check ((select auth.uid()) = cliente_id);
+create policy "editar mis direcciones" on public.direcciones for update to authenticated
+  using ((select auth.uid()) = cliente_id) with check ((select auth.uid()) = cliente_id);
+create policy "borrar mis direcciones" on public.direcciones for delete to authenticated
+  using ((select auth.uid()) = cliente_id);
+
+create policy "ver profesionales" on public.profesionales for select to authenticated using (true);
+create policy "crear mi ficha" on public.profesionales for insert to authenticated
+  with check ((select auth.uid()) = id);
+create policy "editar mi ficha" on public.profesionales for update to authenticated
+  using ((select auth.uid()) = id) with check ((select auth.uid()) = id);
+
+create policy "ver oficios de profesionales" on public.profesional_oficios for select to authenticated using (true);
+create policy "agregar mis oficios" on public.profesional_oficios for insert to authenticated
+  with check ((select auth.uid()) = profesional_id);
+create policy "quitar mis oficios" on public.profesional_oficios for delete to authenticated
+  using ((select auth.uid()) = profesional_id);
+
+create policy "ver horarios" on public.horarios for select to authenticated using (true);
+create policy "agregar mis horarios" on public.horarios for insert to authenticated
+  with check ((select auth.uid()) = profesional_id);
+create policy "editar mis horarios" on public.horarios for update to authenticated
+  using ((select auth.uid()) = profesional_id) with check ((select auth.uid()) = profesional_id);
+create policy "borrar mis horarios" on public.horarios for delete to authenticated
+  using ((select auth.uid()) = profesional_id);
+
+create policy "ver documentos" on public.documentos for select to authenticated
+  using ((select auth.uid()) = profesional_id or (tipo = 'certificado' and estado = 'verificado'));
+create policy "subir mis documentos" on public.documentos for insert to authenticated
+  with check ((select auth.uid()) = profesional_id);
+
+-- Los pedidos y las ofertas solo cambian a través de las funciones de abajo
+create policy "ver pedidos" on public.pedidos for select to authenticated
+  using (cliente_id = (select auth.uid()) or profesional_id = (select auth.uid()) or private.tengo_oferta(id));
+
+create policy "ver ofertas" on public.ofertas for select to authenticated
+  using ((profesional_id = (select auth.uid()) and visible_desde <= now()) or private.es_cliente_pedido(pedido_id));
+
+create policy "ver mensajes" on public.mensajes for select to authenticated
+  using (private.es_parte_pedido(pedido_id));
+create policy "enviar mensajes" on public.mensajes for insert to authenticated
+  with check (autor_id = (select auth.uid()) and private.chat_abierto(pedido_id));
+
+create policy "ver reseñas" on public.resenas for select to authenticated using (true);
+
+-- ---------- Permisos por columna ----------
+
+revoke all on all tables in schema public from anon, authenticated;
+
+grant select on public.oficios, public.localidades to anon, authenticated;
+grant select on public.perfiles, public.contactos, public.direcciones, public.profesionales,
+  public.profesional_oficios, public.horarios, public.documentos, public.pedidos,
+  public.ofertas, public.mensajes, public.resenas, public.profesionales_publicos to authenticated;
+
+grant insert (id, rol, nombre, apellido), update (nombre, apellido) on public.perfiles to authenticated;
+grant insert (id, telefono), update (telefono) on public.contactos to authenticated;
+grant insert (calle, numero, localidad, cp, principal), update (calle, numero, localidad, cp, principal), delete
+  on public.direcciones to authenticated;
+-- estado_validacion no lo puede cambiar el profesional
+grant insert (id, descripcion, localidad, radio_km), update (descripcion, localidad, radio_km)
+  on public.profesionales to authenticated;
+grant insert, delete on public.profesional_oficios to authenticated;
+grant insert, update, delete on public.horarios to authenticated;
+grant insert (tipo, nombre, entidad, archivo) on public.documentos to authenticated;
+grant insert (pedido_id, texto) on public.mensajes to authenticated;
+
+-- ---------- Flujo del pedido ----------
+
+-- Ofrece el pedido a los profesionales que coinciden. El de mejor puntaje
+-- tiene 5 minutos de prioridad; después lo ven todos.
+create function private.ofrecer(p_pedido bigint) returns int
+language plpgsql security definer set search_path = ''
+as $$
+declare
+  v_pedido public.pedidos;
+  v_cantidad int;
+begin
+  select * into v_pedido from public.pedidos where id = p_pedido;
+
+  -- Las ofertas viejas que nadie tomó se vuelven a ofrecer
+  delete from public.ofertas where pedido_id = p_pedido and estado in ('pendiente', 'no_disponible');
+
+  with candidatos as (
+    select p.id, p.radio_km,
+      private.distancia_km(p.localidad, v_pedido.localidad) as km,
+      coalesce((select avg(r.puntaje) from public.resenas r where r.profesional_id = p.id), 4.0) as prom,
+      (select count(*) from public.pedidos t where t.profesional_id = p.id and t.estado = 'terminado') as hechos
+    from public.profesionales p
+    join public.profesional_oficios po on po.profesional_id = p.id and po.oficio_id = v_pedido.oficio_id
+    where p.estado_validacion = 'validado'
+      and p.disponible_fecha = private.hoy()
+      and p.id <> v_pedido.cliente_id
+      and not exists (
+        select 1 from public.ofertas o
+        where o.pedido_id = p_pedido and o.profesional_id = p.id and o.estado = 'rechazada'
+      )
+  ),
+  ranking as (
+    select id, row_number() over (order by prom * 20 + least(hechos, 50) * 0.4 - km * 2 desc) as puesto
+    from candidatos
+    where km <= least(v_pedido.radio_km, radio_km)
+  )
+  insert into public.ofertas (pedido_id, profesional_id, visible_desde, prioridad_hasta)
+  select p_pedido, id,
+    case when puesto = 1 then now() else now() + interval '5 minutes' end,
+    case when puesto = 1 then now() + interval '5 minutes' end
+  from ranking;
+
+  get diagnostics v_cantidad = row_count;
+  return v_cantidad;
+end;
+$$;
+
+create function public.publicar_pedido(
+  p_oficio text, p_titulo text, p_descripcion text, p_direccion bigint,
+  p_modo text, p_profesional uuid default null
+) returns bigint
+language plpgsql security definer set search_path = ''
+as $$
+declare
+  v_uid uuid := auth.uid();
+  v_localidad text;
+  v_id bigint;
+begin
+  if not exists (select 1 from public.perfiles where id = v_uid and rol = 'cliente') then
+    raise exception 'Solo los clientes pueden publicar pedidos';
+  end if;
+  select localidad into v_localidad from public.direcciones where id = p_direccion and cliente_id = v_uid;
+  if v_localidad is null then
+    raise exception 'Elegí una de tus direcciones';
+  end if;
+  if p_modo not in ('primero', 'elegido') then
+    raise exception 'Modo inválido';
+  end if;
+
+  insert into public.pedidos (cliente_id, oficio_id, titulo, descripcion, direccion_id, localidad, modo, estado, vence_at)
+  values (v_uid, p_oficio, p_titulo, p_descripcion, p_direccion, v_localidad, p_modo,
+    case when p_modo = 'elegido' and p_profesional is null then 'borrador' else 'buscando' end,
+    case when p_modo = 'elegido' and p_profesional is null then null else now() + interval '30 minutes' end)
+  returning id into v_id;
+
+  if p_modo = 'primero' then
+    perform private.ofrecer(v_id);
+  elsif p_profesional is not null then
+    perform public.elegir_profesional(v_id, p_profesional);
+  end if;
+  return v_id;
+end;
+$$;
+
+create function public.elegir_profesional(p_pedido bigint, p_profesional uuid) returns void
+language plpgsql security definer set search_path = ''
+as $$
+declare
+  v_pedido public.pedidos;
+begin
+  select * into v_pedido from public.pedidos where id = p_pedido and cliente_id = auth.uid() for update;
+  if v_pedido.id is null then raise exception 'Pedido no encontrado'; end if;
+  if v_pedido.estado not in ('borrador', 'buscando') then
+    raise exception 'El pedido ya tiene profesional';
+  end if;
+  if not exists (
+    select 1 from public.profesionales p
+    join public.profesional_oficios po on po.profesional_id = p.id and po.oficio_id = v_pedido.oficio_id
+    where p.id = p_profesional and p.estado_validacion = 'validado'
+  ) then
+    raise exception 'Ese profesional no trabaja en este oficio';
+  end if;
+
+  delete from public.ofertas where pedido_id = p_pedido and estado in ('pendiente', 'no_disponible');
+  insert into public.ofertas (pedido_id, profesional_id, elegido)
+  values (p_pedido, p_profesional, true)
+  on conflict (pedido_id, profesional_id)
+  do update set estado = 'pendiente', elegido = true, visible_desde = now(), prioridad_hasta = null;
+
+  update public.pedidos
+  set modo = 'elegido', estado = 'buscando', vence_at = now() + interval '30 minutes'
+  where id = p_pedido;
+end;
+$$;
+
+-- Devuelve false si el pedido ya no está disponible
+create function public.aceptar_oferta(p_pedido bigint) returns boolean
+language plpgsql security definer set search_path = ''
+as $$
+declare
+  v_uid uuid := auth.uid();
+  v_pedido public.pedidos;
+begin
+  select * into v_pedido from public.pedidos where id = p_pedido for update;
+  if v_pedido.id is null or v_pedido.estado <> 'buscando' or v_pedido.vence_at <= now() then
+    return false;
+  end if;
+  if not exists (
+    select 1 from public.ofertas
+    where pedido_id = p_pedido and profesional_id = v_uid and estado = 'pendiente' and visible_desde <= now()
+  ) then
+    return false;
+  end if;
+
+  update public.pedidos set estado = 'asignado', profesional_id = v_uid, asignado_at = now() where id = p_pedido;
+  update public.ofertas set estado = 'aceptada' where pedido_id = p_pedido and profesional_id = v_uid;
+  update public.ofertas set estado = 'no_disponible'
+  where pedido_id = p_pedido and profesional_id <> v_uid and estado = 'pendiente';
+  return true;
+end;
+$$;
+
+create function public.rechazar_oferta(p_pedido bigint) returns void
+language plpgsql security definer set search_path = ''
+as $$
+declare
+  v_uid uuid := auth.uid();
+  v_tenia_prioridad boolean;
+begin
+  update public.ofertas set estado = 'rechazada'
+  where pedido_id = p_pedido and profesional_id = v_uid and estado = 'pendiente'
+  returning prioridad_hasta > now() into v_tenia_prioridad;
+
+  -- Si tenía la prioridad, el resto lo ve enseguida
+  if v_tenia_prioridad then
+    update public.ofertas set visible_desde = now()
+    where pedido_id = p_pedido and estado = 'pendiente' and visible_desde > now();
+  end if;
+end;
+$$;
+
+create function public.confirmar_profesional(p_pedido bigint) returns void
+language plpgsql security definer set search_path = ''
+as $$
+begin
+  update public.pedidos set estado = 'confirmado', confirmado_at = now()
+  where id = p_pedido and cliente_id = auth.uid() and estado = 'asignado';
+  if not found then raise exception 'El pedido no está esperando confirmación'; end if;
+end;
+$$;
+
+-- El cliente prefiere otro profesional. Devuelve el nuevo estado del pedido.
+create function public.pedir_otro(p_pedido bigint) returns text
+language plpgsql security definer set search_path = ''
+as $$
+declare
+  v_pedido public.pedidos;
+begin
+  select * into v_pedido from public.pedidos where id = p_pedido and cliente_id = auth.uid() for update;
+  if v_pedido.id is null or v_pedido.estado <> 'asignado' then
+    raise exception 'El pedido no está esperando confirmación';
+  end if;
+
+  update public.ofertas set estado = 'rechazada'
+  where pedido_id = p_pedido and profesional_id = v_pedido.profesional_id;
+
+  if v_pedido.modo = 'primero' then
+    update public.pedidos
+    set estado = 'buscando', profesional_id = null, asignado_at = null, vence_at = now() + interval '30 minutes'
+    where id = p_pedido;
+    perform private.ofrecer(p_pedido);
+    return 'buscando';
+  else
+    update public.pedidos
+    set estado = 'borrador', profesional_id = null, asignado_at = null, vence_at = null
+    where id = p_pedido;
+    return 'borrador';
+  end if;
+end;
+$$;
+
+-- Nadie aceptó: volver a ofrecerlo, opcionalmente con un radio mayor
+create function public.reintentar_pedido(p_pedido bigint, p_radio smallint default null) returns int
+language plpgsql security definer set search_path = ''
+as $$
+begin
+  update public.pedidos
+  set estado = 'buscando', modo = 'primero', radio_km = coalesce(p_radio, radio_km),
+      vence_at = now() + interval '30 minutes'
+  where id = p_pedido and cliente_id = auth.uid() and estado in ('borrador', 'buscando');
+  if not found then raise exception 'El pedido no se puede volver a ofrecer'; end if;
+  return private.ofrecer(p_pedido);
+end;
+$$;
+
+create function public.cancelar_pedido(p_pedido bigint) returns void
+language plpgsql security definer set search_path = ''
+as $$
+declare
+  v_uid uuid := auth.uid();
+begin
+  update public.pedidos set estado = 'cancelado', cancelado_at = now(), cancelado_por = v_uid
+  where id = p_pedido
+    and estado in ('borrador', 'buscando', 'asignado', 'confirmado')
+    and (cliente_id = v_uid or (profesional_id = v_uid and estado = 'confirmado'));
+  if not found then raise exception 'El pedido no se puede cancelar'; end if;
+  update public.ofertas set estado = 'no_disponible' where pedido_id = p_pedido and estado = 'pendiente';
+end;
+$$;
+
+create function public.fijar_visita(p_pedido bigint, p_fecha timestamptz) returns void
+language plpgsql security definer set search_path = ''
+as $$
+begin
+  if p_fecha < now() - interval '1 day' then raise exception 'La fecha ya pasó'; end if;
+  update public.pedidos set visita_at = p_fecha
+  where id = p_pedido and estado = 'confirmado'
+    and (cliente_id = auth.uid() or profesional_id = auth.uid());
+  if not found then raise exception 'El chat de este pedido no está abierto'; end if;
+end;
+$$;
+
+-- Devuelve el estado del pedido después de marcarlo
+create function public.marcar_terminado(p_pedido bigint) returns text
+language plpgsql security definer set search_path = ''
+as $$
+declare
+  v_uid uuid := auth.uid();
+  v_pedido public.pedidos;
+begin
+  update public.pedidos
+  set terminado_cliente = terminado_cliente or cliente_id = v_uid,
+      terminado_profesional = terminado_profesional or profesional_id = v_uid
+  where id = p_pedido and estado = 'confirmado' and (cliente_id = v_uid or profesional_id = v_uid)
+  returning * into v_pedido;
+  if v_pedido.id is null then raise exception 'El pedido no está en curso'; end if;
+
+  if v_pedido.terminado_cliente and v_pedido.terminado_profesional then
+    update public.pedidos set estado = 'terminado', terminado_at = now() where id = p_pedido;
+    return 'terminado';
+  end if;
+  return 'confirmado';
+end;
+$$;
+
+create function public.calificar(p_pedido bigint, p_puntaje smallint, p_comentario text default null) returns void
+language plpgsql security definer set search_path = ''
+as $$
+declare
+  v_pedido public.pedidos;
+begin
+  select * into v_pedido from public.pedidos
+  where id = p_pedido and cliente_id = auth.uid() and estado = 'terminado';
+  if v_pedido.id is null then raise exception 'Solo podés calificar pedidos terminados'; end if;
+  insert into public.resenas (pedido_id, profesional_id, cliente_id, puntaje, comentario)
+  values (p_pedido, v_pedido.profesional_id, v_pedido.cliente_id, p_puntaje, nullif(trim(p_comentario), ''));
+end;
+$$;
+
+create function public.set_disponible_hoy(p_disponible boolean) returns void
+language sql security definer set search_path = ''
+as $$
+  update public.profesionales
+  set disponible_fecha = case when p_disponible then private.hoy() end
+  where id = auth.uid()
+$$;
+
+-- Cancela lo que esté en curso y borra la cuenta (los datos se borran en cascada)
+create function public.eliminar_cuenta() returns void
+language plpgsql security definer set search_path = ''
+as $$
+declare
+  v_uid uuid := auth.uid();
+begin
+  if v_uid is null then raise exception 'No hay sesión'; end if;
+  update public.pedidos set estado = 'cancelado', cancelado_at = now(), cancelado_por = v_uid
+  where (cliente_id = v_uid or profesional_id = v_uid)
+    and estado in ('borrador', 'buscando', 'asignado', 'confirmado');
+  delete from auth.users where id = v_uid;
+end;
+$$;
+
+-- Búsqueda de profesionales con filtros (respeta RLS)
+create function public.buscar_profesionales(
+  p_oficio text, p_localidad text, p_radio int default 15,
+  p_solo_hoy boolean default false, p_solo_matriculados boolean default false,
+  p_orden text default 'puntaje'
+) returns table (
+  id uuid, nombre text, apellido text, localidad text, distancia_km double precision,
+  promedio numeric, cantidad_resenas int, oficios text[], disponible_hoy boolean, matriculado boolean
+)
+language sql stable set search_path = ''
+as $$
+  select * from (
+    select pp.id, pp.nombre, pp.apellido, pp.localidad,
+      private.distancia_km(pp.localidad, p_localidad) as distancia_km,
+      pp.promedio, pp.cantidad_resenas, pp.oficios, pp.disponible_hoy, pp.matriculado
+    from public.profesionales_publicos pp
+    where pp.estado_validacion = 'validado'
+      and p_oficio = any (pp.oficios)
+      and (not p_solo_hoy or pp.disponible_hoy)
+      and (not p_solo_matriculados or pp.matriculado)
+  ) t
+  where t.distancia_km <= p_radio
+  order by
+    case when p_orden = 'cerca' then t.distancia_km end asc,
+    t.promedio desc nulls last,
+    t.distancia_km asc
+$$;
+
+revoke execute on all functions in schema public from public, anon;
+grant execute on all functions in schema public to authenticated;
+
+-- ---------- Tiempo real ----------
+
+alter publication supabase_realtime add table public.pedidos, public.ofertas, public.mensajes;
+
+-- ---------- Archivos ----------
+
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types) values
+  ('documentos', 'documentos', false, 10485760, array['image/*', 'application/pdf']),
+  ('pedidos', 'pedidos', false, 10485760, array['image/*']);
+
+-- documentos/<id del profesional>/archivo
+create policy "subir mis documentos" on storage.objects for insert to authenticated
+  with check (bucket_id = 'documentos' and (storage.foldername(name))[1] = (select auth.uid())::text);
+create policy "ver mis documentos" on storage.objects for select to authenticated
+  using (bucket_id = 'documentos' and (storage.foldername(name))[1] = (select auth.uid())::text);
+
+-- pedidos/<número de pedido>/foto
+create policy "subir fotos de mi pedido" on storage.objects for insert to authenticated
+  with check (bucket_id = 'pedidos' and private.es_cliente_pedido(private.pedido_de_ruta(name)));
+create policy "ver fotos de pedidos" on storage.objects for select to authenticated
+  using (bucket_id = 'pedidos' and private.puede_ver_pedido(private.pedido_de_ruta(name)));

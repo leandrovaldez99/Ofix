@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=Public+Sans:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="css/styles.css">
 </head>
-<body>
+<body class="cargando">
 <div class="app">
 <header class="sitebar">
   <div class="sitebar-inner">
@@ -19,44 +19,33 @@
       <a href="pedidos.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 7h12M8 12h12M8 17h12"/><circle cx="4" cy="7" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="17" r="1"/></svg>Pedidos</a>
       <a href="perfil.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1.5-3.6 4-5 7-5s5.5 1.4 7 5"/></svg>Perfil</a>
     </nav>
-    <div class="user">Leandro Valdez</div>
+    <div class="user"></div>
   </div>
 </header>
 
 <header class="home-hero">
   <div class="home-hero-inner">
     <span style="color:var(--clay)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span>
-    <div class="grow"><div class="xsmall muted">Tigre, Buenos Aires</div><h1>Hola, Leandro</h1></div>
+    <div class="grow"><div class="xsmall muted" id="ubicacion"></div><h1 id="saludo"></h1></div>
   </div>
 </header>
 
 <main class="page">
 <div class="cols">
   <div>
-    <a class="searchbox" href="buscar.html"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>¿Qué oficio necesitás?</a>
+    <a class="searchbox" href="buscar.html?oficio=plomeria"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>¿Qué oficio necesitás?</a>
     <h2 class="section-title">Oficios</h2>
     <div class="oficios-grid">
-      <a class="oficio-tile" href="buscar.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 5v6a5 5 0 0 0 10 0V8"/><path d="M4.5 5h5"/><path d="M15 5h4.5"/></svg><span>Plomería</span></a>
-      <a class="oficio-tile" href="buscar.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c3 4 5 6 5 9a5 5 0 0 1-10 0c0-2 1-3.5 2.5-5C10.5 9 12 8 12 3z"/></svg><span>Gas</span></a>
-      <a class="oficio-tile" href="buscar.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 3L6 13h5l-1 8 7-10h-5z"/></svg><span>Electricidad</span></a>
-      <a class="oficio-tile" href="buscar.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h13v4H4z"/><path d="M17 9h3v3h-6v3"/><path d="M12 15h4v6h-4z"/></svg><span>Pintura</span></a>
-      <a class="oficio-tile" href="buscar.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 16l8-8 3 3-8 8H4z"/><path d="M14 5l5 5-2 2-5-5z"/></svg><span>Carpintería</span></a>
-      <a class="oficio-tile" href="buscar.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="12" r="4"/><path d="M12 12h8"/><path d="M17 12v3"/><path d="M20 12v4"/></svg><span>Cerrajería</span></a>
+      <a class="oficio-tile" href="buscar.html?oficio=plomeria"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 5v6a5 5 0 0 0 10 0V8"/><path d="M4.5 5h5"/><path d="M15 5h4.5"/></svg><span>Plomería</span></a>
+      <a class="oficio-tile" href="buscar.html?oficio=gas"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c3 4 5 6 5 9a5 5 0 0 1-10 0c0-2 1-3.5 2.5-5C10.5 9 12 8 12 3z"/></svg><span>Gas</span></a>
+      <a class="oficio-tile" href="buscar.html?oficio=electricidad"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 3L6 13h5l-1 8 7-10h-5z"/></svg><span>Electricidad</span></a>
+      <a class="oficio-tile" href="buscar.html?oficio=pintura"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h13v4H4z"/><path d="M17 9h3v3h-6v3"/><path d="M12 15h4v6h-4z"/></svg><span>Pintura</span></a>
+      <a class="oficio-tile" href="buscar.html?oficio=carpinteria"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 16l8-8 3 3-8 8H4z"/><path d="M14 5l5 5-2 2-5-5z"/></svg><span>Carpintería</span></a>
+      <a class="oficio-tile" href="buscar.html?oficio=cerrajeria"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="12" r="4"/><path d="M12 12h8"/><path d="M17 12v3"/><path d="M20 12v4"/></svg><span>Cerrajería</span></a>
     </div>
   </div>
   <div>
-    <h2 class="section-title">Tu pedido activo</h2>
-    <a class="card" href="pedido-esperando.html">
-      <div class="status"><span class="status-dot"></span><span class="small" style="font-weight:600;color:var(--clay)">Buscando profesional</span><span class="ml-auto xsmall muted">hace 12 min</span></div>
-      <p style="margin-top:9px;font-size:14px;font-weight:600">Pérdida de agua abajo de la pileta</p>
-      <p class="small muted" style="margin-top:3px">Plomería · Av. Cazadores 1240</p>
-    </a>
-    <h2 class="section-title">Para calificar</h2>
-    <a class="card row" href="calificar.html">
-      <div class="avatar clay" aria-hidden="true">SI</div>
-      <div class="grow"><div style="font-weight:700;font-size:14px">Sergio Ibáñez</div><div class="xsmall muted">Salta la térmica al prender el horno</div></div>
-      <span class="chip clay"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l2.4 5 5.6.8-4 3.9 1 5.5-5-2.7-5 2.7 1-5.5-4-3.9 5.6-.8z"/></svg>Calificar</span>
-    </a>
+    <div class="stack" id="activos"></div>
     <a class="btn btn-clay" href="nuevo-pedido.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Publicar un problema nuevo</a>
   </div>
 </div>
@@ -68,5 +57,6 @@
   <a href="perfil.html"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1.5-3.6 4-5 7-5s5.5 1.4 7 5"/></svg><span>Perfil</span></a>
 </nav>
 </div>
+<script type="module" src="js/paginas/inicio.js"></script>
 </body>
 </html>

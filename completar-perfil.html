@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Completar perfil · Ofix</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=Public+Sans:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="auth">
+<aside class="auth-side">
+  <div class="brand">Ofix</div>
+  <div class="stack" style="gap:36px">
+    <h2>El oficio que necesitás, cerca tuyo.</h2>
+    <div class="how">
+      <div class="how-item"><span class="how-num">1</span><div><b>Contá tu problema</b><span>Elegí el oficio, describí qué pasa y dónde.</span></div></div>
+      <div class="how-item"><span class="how-num">2</span><div><b>Te contesta un profesional</b><span>Se lo ofrecemos al más cercano y mejor calificado, o lo elegís vos.</span></div></div>
+      <div class="how-item"><span class="how-num">3</span><div><b>Coordinan por chat</b><span>Acuerdan día y hora. Después calificás el servicio.</span></div></div>
+    </div>
+  </div>
+  <div class="foot">Ocampo, Bárbara M. · Romero, Benjamín H. · Valdez, Leandro J.</div>
+</aside>
+<main class="auth-main">
+  <div><h1 style="font-size:22px">Completá tu perfil</h1><div class="small muted">Es la primera vez que entrás a Ofix</div></div>
+  <form class="form-grid two" id="form-perfil" novalidate>
+    <div class="field span-2"><span class="field-label" id="lbl-rol">¿Cómo vas a usar Ofix?</span>
+      <div class="chips" role="radiogroup" aria-labelledby="lbl-rol">
+        <label class="chip"><input class="sr-only" type="radio" name="rol" value="cliente" required>Busco un profesional</label>
+        <label class="chip"><input class="sr-only" type="radio" name="rol" value="profesional" required>Ofrezco un oficio</label>
+      </div>
+    </div>
+    <div class="field"><label for="f-nombre">Nombre</label><input class="input" id="f-nombre" name="nombre" type="text" autocomplete="given-name" maxlength="60" required></div>
+    <div class="field"><label for="f-apellido">Apellido</label><input class="input" id="f-apellido" name="apellido" type="text" autocomplete="family-name" maxlength="60" required></div>
+    <div class="field span-2"><label for="f-telefono">Teléfono</label><input class="input" id="f-telefono" name="telefono" type="tel" placeholder="11 5555-1234" autocomplete="tel" minlength="6" maxlength="30" required></div>
+    <div class="span-2 stack-sm">
+      <button class="btn btn-clay" type="submit">Continuar</button>
+      <button class="btn btn-ghost" type="button" id="btn-salir">Salir</button>
+    </div>
+  </form>
+  <p class="legal">Tu teléfono solo lo ve la otra parte de un pedido confirmado.</p>
+</main>
+</div>
+<script type="module" src="js/paginas/completar-perfil.js"></script>
+</body>
+</html>

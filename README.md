@@ -4,7 +4,49 @@ Appweb para conectar clientes con profesionales de oficios (plomeros, gasistas, 
 
 Proyecto de Ocampo, Bárbara M.; Romero, Benjamín H. y Valdez, Leandro J.
 
-Esta versión son **solo las pantallas, conectadas entre sí**. Es HTML y CSS, sin JavaScript ni base de datos: los datos que se ven son de ejemplo y los botones llevan a la pantalla que sigue en el flujo. Se abre `index.html` en el navegador.
+La app está hecha con HTML, CSS y JavaScript sin frameworks, y usa [Supabase](https://supabase.com) como base de datos, para el inicio de sesión (correo y contraseña o Google), los archivos (DNI, certificados y fotos de los pedidos) y el chat en tiempo real.
+
+## Cómo correrla
+
+La app tiene que abrirse desde un servidor local, no con doble clic en el archivo: el navegador bloquea los módulos de JavaScript y el ingreso con Google en direcciones `file://`.
+
+- Con VS Code: instalar la extensión **Live Server**, clic derecho en `index.html` → *Open with Live Server* (abre `http://127.0.0.1:5500`).
+- O desde una terminal en la carpeta del proyecto: `python -m http.server 5500` y abrir `http://127.0.0.1:5500`.
+
+## Configurar Supabase (una sola vez)
+
+El proyecto de Supabase se llama **ofix** (región São Paulo). La conexión está en `js/supabase.js`; la clave que figura ahí es la pública (*publishable*) y puede estar en el código: lo que protege los datos son las reglas de seguridad de la base (RLS).
+
+1. **Crear las tablas.** En el panel de Supabase, *SQL Editor* → *New query*, pegar todo `supabase/migrations/20261021000000_esquema_inicial.sql` y ejecutar.
+2. **Direcciones permitidas.** *Authentication* → *URL Configuration*:
+   - *Site URL*: `http://127.0.0.1:5500`
+   - *Redirect URLs*: agregar `http://127.0.0.1:5500/**` y `http://localhost:5500/**` (y la dirección donde se publique la app, si se sube a internet).
+3. **Confirmación de correo (opcional).** Por defecto Supabase pide confirmar el correo antes de entrar y solo manda unos pocos mails por hora. Para probar más rápido: *Authentication* → *Sign In / Providers* → *Email* → desactivar *Confirm email*.
+4. **Ingreso con Google.**
+   1. En [Google Cloud Console](https://console.cloud.google.com/) crear un proyecto, configurar la *pantalla de consentimiento de OAuth* (tipo *Externo*) y después *Credenciales* → *Crear credenciales* → *ID de cliente de OAuth* → *Aplicación web*.
+   2. En *URI de redireccionamiento autorizados* poner `https://tfbuydlfzrsktqypudht.supabase.co/auth/v1/callback`.
+   3. Copiar el *ID de cliente* y el *Secreto*, y pegarlos en Supabase: *Authentication* → *Sign In / Providers* → *Google* → activar y guardar.
+5. **Aprobar profesionales.** Un profesional nuevo queda *pendiente de validación* y no recibe pedidos. No hay panel de administración: se aprueba corriendo `supabase/validar-profesional.sql` en el SQL Editor (cambiando el correo). Ahí también se ven los documentos que subió.
+
+Para probar el flujo completo hacen falta dos cuentas: una de cliente y una de profesional (aprobado y con "Estoy disponible hoy" activado), por ejemplo en dos navegadores distintos o una en ventana privada.
+
+## Cómo funciona
+
+- **Pedidos.** Al publicar con "Que lo tome el primero disponible", la base busca profesionales validados del oficio, disponibles hoy y dentro del radio (las distancias se calculan entre los centros de las localidades). El de mejor puntaje (calificaciones, trabajos hechos y cercanía) lo ve primero y tiene 5 minutos de prioridad; después lo ven todos. El pedido vence a los 30 minutos. Con "Quiero elegir yo" el pedido se guarda y el cliente elige de la lista.
+- **Privacidad.** El teléfono y la dirección exacta del cliente solo los ve el profesional confirmado, y lo controla la base de datos, no la página.
+- **Chat.** Se abre cuando el cliente confirma al profesional. Los mensajes y los cambios de estado del pedido llegan en tiempo real.
+- **Calificaciones.** El trabajo se cierra cuando los dos lo marcan como terminado; ahí el cliente puede calificar.
+
+### Archivos
+
+| Carpeta | Contenido |
+| --- | --- |
+| `js/supabase.js` | Conexión con Supabase |
+| `js/comun.js` | Sesión, formato de fechas y distancias, mensajes de error y piezas que comparten las pantallas |
+| `js/ficha.js`, `js/datos-personales.js`, `js/documentos.js`, `js/iconos.js` | Partes compartidas entre algunas pantallas |
+| `js/paginas/` | Un archivo por pantalla |
+| `supabase/migrations/` | Tablas, reglas de seguridad y funciones del flujo de pedidos |
+| `supabase/validar-profesional.sql` | Consulta para aprobar profesionales |
 
 ## Flujos
 
@@ -13,7 +55,7 @@ Esta versión son **solo las pantallas, conectadas entre sí**. Es HTML y CSS, s
 `index` → `inicio` → `buscar` → `profesional` → `nuevo-pedido` → `pedido-esperando` → `pedido-asignado` → `chat-cliente` → `calificar`
 
 - Desde `nuevo-pedido` se elige entre "Que lo tome el primero disponible" (va a `pedido-esperando`) o "Quiero elegir yo" (va a `buscar`).
-- En `pedido-esperando` hay una caja punteada **Boceto** con los dos caminos posibles: un profesional acepta (`pedido-asignado`) o nadie acepta en 30 minutos (`sin-profesionales`).
+- `pedido-esperando` pasa sola a `pedido-asignado` cuando un profesional acepta, o a `sin-profesionales` si nadie acepta en 30 minutos.
 
 **Profesional**
 
@@ -22,13 +64,14 @@ Esta versión son **solo las pantallas, conectadas entre sí**. Es HTML y CSS, s
 - `oferta-no-disponible` muestra el caso de un pedido que ya tomó otro profesional.
 - `cuenta` y `disponibilidad` son la configuración del profesional.
 
-En la pantalla de ingreso hay accesos directos para entrar como cliente o como profesional.
 
 ## Pantallas
 
 | Archivo | Pantalla | Caso de uso |
 | --- | --- | --- |
-| `index.html` | Ingresar | |
+| `index.html` | Ingresar con correo o con Google | |
+| `completar-perfil.html` | Primer ingreso con Google: rol, nombre y teléfono | |
+| `nueva-contrasena.html` | Elegir contraseña nueva (desde el mail de "Me olvidé la contraseña") | |
 | `registro-cliente.html` | Crear cuenta como cliente | CU1 |
 | `registro-profesional.html` | Registro de profesional, paso 1: datos | CU2 |
 | `registro-profesional-2.html` | Registro de profesional, paso 2: oficios, zona, horarios, DNI y certificados | CU2 |

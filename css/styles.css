@@ -385,20 +385,6 @@ a.chip.on:hover, label.chip:has(input:checked):hover { background: var(--accent)
 }
 .send-btn:hover { background: var(--accent-hover); }
 
-/* ---------- Nota del boceto (navegación entre estados) ---------- */
-
-.proto {
-  border: 1.5px dashed var(--line-strong); border-radius: var(--radius); padding: 12px;
-  background: rgba(255, 255, 255, .5);
-}
-.proto-title {
-  font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted);
-  margin-bottom: 8px;
-}
-.proto .chips { gap: 6px; }
-.proto a.chip { background: var(--surface); border: 1px solid var(--line); }
-.proto a.chip:hover { border-color: var(--line-strong); }
-
 /* ---------- Empty state ---------- */
 
 .empty { text-align: center; padding: 28px 16px; color: var(--muted); font-size: 14px; }
@@ -458,6 +444,30 @@ a.chip.on:hover, label.chip:has(input:checked):hover { background: var(--accent)
 
 .hide-desktop { }
 .only-desktop { display: none; }
+
+/* ---------- Datos reales ---------- */
+
+/* La pantalla se muestra cuando terminan de llegar los datos */
+body.cargando .page, body.cargando .composer, body.cargando .home-hero, body.cargando .pro-hero,
+body.cargando .pagehead .grow { visibility: hidden; }
+body.cargando .app::after {
+  content: 'Cargando…'; position: fixed; top: 45%; left: 0; right: 0; text-align: center;
+  color: var(--muted); font-size: 14px;
+}
+
+.btn[aria-busy="true"] { opacity: .6; cursor: progress; }
+
+.btn-google { background: var(--surface); color: var(--ink); border: 1.5px solid var(--line); }
+.btn-google:hover { border-color: var(--line-strong); color: var(--ink); }
+
+.aviso p { color: inherit; }
+
+.fotos { display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 8px; margin-top: 10px; }
+.fotos a { display: block; aspect-ratio: 1; border-radius: 10px; overflow: hidden; background: var(--chip); }
+.fotos img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.composer .input:disabled { opacity: .6; }
+.send-btn:disabled { opacity: .5; cursor: not-allowed; }
 
 /* ============================================================
    Escritorio

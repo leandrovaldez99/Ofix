@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=Public+Sans:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="css/styles.css">
 </head>
-<body>
+<body class="cargando">
 <div class="app">
 <header class="sitebar">
   <div class="sitebar-inner">
@@ -19,7 +19,7 @@
       <a href="pedidos.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 7h12M8 12h12M8 17h12"/><circle cx="4" cy="7" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="17" r="1"/></svg>Pedidos</a>
       <a href="perfil.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1.5-3.6 4-5 7-5s5.5 1.4 7 5"/></svg>Perfil</a>
     </nav>
-    <div class="user">Leandro Valdez</div>
+    <div class="user"></div>
   </div>
 </header>
 
@@ -31,7 +31,7 @@
 </header>
 
 <main class="page no-tabs">
-<form class="narrow" action="pedido-esperando.html">
+<form class="narrow" id="form-pedido" novalidate>
   <div class="field"><span class="field-label" id="lbl-of">Oficio</span>
     <div class="chips" role="radiogroup" aria-labelledby="lbl-of">
       <label class="chip"><input class="sr-only" type="radio" name="oficio" value="plomeria" required checked>Plomería</label>
@@ -46,19 +46,30 @@
   <div class="field"><label for="f-desc">Contá qué te pasa</label>
     <textarea class="textarea" id="f-desc" name="descripcion" rows="4" maxlength="1000" required placeholder="Ej.: Pierde agua el caño de abajo de la pileta de la cocina. Ya cerré la llave de paso."></textarea></div>
   <div class="field"><label for="f-dir">Dirección de la visita</label>
-    <select class="select" id="f-dir" name="direccion"><option>Av. Cazadores 1240, Tigre</option><option>Usar mi ubicación actual</option><option>Otra dirección…</option></select>
+    <select class="select" id="f-dir" name="direccion"></select>
+  </div>
+  <div class="form-grid two" id="nueva-dir" hidden>
+    <div class="field"><label for="f-calle">Calle</label><input class="input" id="f-calle" name="calle" type="text" maxlength="100" autocomplete="address-line1"></div>
+    <div class="field"><label for="f-numero">Altura</label><input class="input" id="f-numero" name="numero" type="text" inputmode="numeric" maxlength="10"></div>
+    <div class="field"><label for="f-loc">Localidad</label><select class="select" id="f-loc" name="localidad"><option>Tigre</option><option>Don Torcuato</option><option>Benavídez</option><option>General Pacheco</option><option>San Fernando</option><option>Nordelta</option><option>Victoria</option><option>Rincón de Milberg</option><option>El Talar</option><option>San Isidro</option></select></div>
+    <div class="field"><label for="f-cp">Código postal (opcional)</label><input class="input" id="f-cp" name="cp" type="text" inputmode="numeric" maxlength="10" autocomplete="postal-code"></div>
   </div>
   <div class="field"><label for="f-fotos">Fotos (opcional)</label>
     <input class="input" type="file" id="f-fotos" name="fotos" accept="image/*" multiple style="padding-top:11px"></div>
   <div class="note"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg><p>Tu teléfono y tu dirección exacta no se muestran en el aviso. Se los pasamos solo al profesional que confirmes.</p></div>
-  <div class="field"><span class="field-label">¿Cómo querés encontrar al profesional?</span>
-    <button class="btn btn-clay" type="submit"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 3L6 13h5l-1 8 7-10h-5z"/></svg>Que lo tome el primero disponible</button>
+  <div class="field" id="modos"><span class="field-label">¿Cómo querés encontrar al profesional?</span>
+    <button class="btn btn-clay" type="submit" value="primero"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 3L6 13h5l-1 8 7-10h-5z"/></svg>Que lo tome el primero disponible</button>
     <p class="xsmall muted">Se lo ofrecemos primero al profesional con mejor puntaje (cercanía, calificaciones y trabajos hechos). Si no responde, pasa al siguiente.</p>
-    <button class="btn btn-white" type="submit" formaction="buscar.html" style="margin-top:6px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>Quiero elegir yo</button>
+    <button class="btn btn-white" type="submit" value="elegir" style="margin-top:6px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>Quiero elegir yo</button>
     <p class="xsmall muted">Guardamos el pedido y te mostramos la lista de profesionales de la zona.</p>
+  </div>
+  <div class="field" id="modo-pro" hidden>
+    <button class="btn btn-clay" type="submit" value="profesional" id="btn-pro"></button>
+    <p class="xsmall muted">Tiene 30 minutos para aceptarlo. Si no puede, te avisamos para que elijas a otro.</p>
   </div>
 </form>
 </main>
 </div>
+<script type="module" src="js/paginas/nuevo-pedido.js"></script>
 </body>
 </html>
