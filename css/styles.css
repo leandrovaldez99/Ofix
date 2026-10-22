@@ -590,3 +590,13 @@ body.cargando .app::after {
 .lapiz:hover { background: var(--chip); color: var(--ink); }
 .campo-editable.editando .lapiz { display: none; }
 .campo-editable.editando .input { padding-right: 14px; }
+
+/* ---------- Búsqueda: ordenar (una opción) y filtrar (varias) ---------- */
+.opciones-busqueda { display: flex; flex-direction: column; gap: 10px; }
+.opcion-fila { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.opcion-titulo { flex: none; min-width: 86px; font-size: 12px; font-weight: 600; color: var(--muted); }
+.segmentado { display: inline-flex; gap: 2px; padding: 3px; border-radius: 999px; background: var(--chip); }
+.segmentado label.chip { min-height: 30px; padding: 5px 13px; background: transparent; }
+.segmentado label.chip:hover { background: #E6E0D3; }
+.segmentado label.chip:has(input:checked) { background: var(--accent); color: #FFFFFF; }
+label.chip.filtro:has(input:checked)::before { content: "✓"; font-weight: 700; margin-right: 6px; }
