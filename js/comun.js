@@ -341,13 +341,14 @@ export function estadoPedido(p) {
 
 const COLOR_ESTADO = { '': 'var(--clay)', green: 'var(--green)', gray: 'var(--muted)' };
 
-export function tarjetaPedido(p, { href, detalle }) {
+export function tarjetaPedido(p, { href, detalle, accion }) {
   const e = estadoPedido(p);
   const tag = href ? 'a' : 'div';
   return `<${tag} class="card" ${href ? `href="${esc(href)}"` : ''}>
     <div class="status ${e.clase}"><span class="status-dot"></span><span class="small" style="font-weight:600;color:${COLOR_ESTADO[e.clase]}">${esc(e.texto)}</span><span class="ml-auto xsmall muted">${esc(hace(p.created_at))}</span></div>
     <p style="margin-top:9px;font-size:14px;font-weight:600">${esc(p.titulo)}</p>
     <p class="small muted" style="margin-top:3px">${esc(detalle)}</p>
+    ${accion && !href ? `<a class="btn btn-white btn-sm" style="margin-top:12px" href="${esc(accion.href)}">${esc(accion.texto)}</a>` : ''}
   </${tag}>`;
 }
 

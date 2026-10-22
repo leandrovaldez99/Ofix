@@ -61,7 +61,7 @@ try {
     }
     if (p.estado === 'cancelado') {
       const quien = p.cancelado_por === user.id ? 'Cancelaste' : `${esc(otro()?.nombre || 'La otra parte')} canceló`;
-      html += `<div class="note clay"><p><b>${quien} este trabajo.</b> El chat quedó cerrado.</p></div>`;
+      html += `<div class="note clay"><p><b>${quien} este trabajo.</b> El chat quedó cerrado.${esCliente ? ` <a href="nuevo-pedido.html?repetir=${p.id}">Publicar el pedido de nuevo</a>` : ''}</p></div>`;
     }
     $('#arriba').innerHTML = html;
   }

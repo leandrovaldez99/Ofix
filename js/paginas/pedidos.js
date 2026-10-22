@@ -23,7 +23,11 @@ try {
   $('#listas').innerHTML = pedidos.length
     ? grupos.filter(([, lista]) => lista.length).map(([titulo, lista]) => `
       <h2 class="section-title">${titulo} <span class="muted">· ${lista.length}</span></h2>
-      <div class="list-grid two">${lista.map((p) => tarjetaPedido(p, { href: paginaPedidoCliente(p), detalle: detalle(p) })).join('')}</div>`).join('')
+      <div class="list-grid two">${lista.map((p) => tarjetaPedido(p, {
+        href: paginaPedidoCliente(p),
+        detalle: detalle(p),
+        accion: p.estado === 'cancelado' ? { href: `nuevo-pedido.html?repetir=${p.id}`, texto: 'Publicar de nuevo' } : null,
+      })).join('')}</div>`).join('')
     : '<div class="card empty"><b>Todavía no publicaste ningún pedido</b>Contá qué necesitás y te contesta un profesional de tu zona.</div>';
   listo();
 } catch (err) {

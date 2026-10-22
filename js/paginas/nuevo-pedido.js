@@ -36,6 +36,30 @@ try {
   selDir.innerHTML = direcciones.map((d) => `<option value="${d.id}">${esc(textoDireccion(d))}</option>`).join('')
     + '<option value="nueva">Otra dirección…</option>';
 
+  // "Publicar de nuevo" un pedido cancelado: se copian los datos y las fotos a un pedido nuevo
+  const repetirId = param('repetir');
+  let original = null;
+  let fotosOriginal = [];
+  if (repetirId && !pro) {
+    const { data } = await sb.from('pedidos').select('id, oficio_id, titulo, descripcion, direccion_id')
+      .eq('id', repetirId).eq('cliente_id', user.id).maybeSingle();
+    original = data;
+  }
+  if (original) {
+    if (OFICIOS[original.oficio_id]) $(`[name=oficio][value="${original.oficio_id}"]`).checked = true;
+    form.titulo.value = original.titulo;
+    form.descripcion.value = original.descripcion;
+    if (direcciones.some((d) => d.id === original.direccion_id)) selDir.value = String(original.direccion_id);
+    const { data: archivos } = await sb.storage.from('pedidos').list(String(original.id));
+    fotosOriginal = (archivos || []).filter((a) => a.id);
+    const fotos = fotosOriginal.length
+      ? ` También copiamos ${fotosOriginal.length === 1 ? 'la foto' : `las ${fotosOriginal.length} fotos`} que habías subido.`
+      : '';
+    form.insertAdjacentHTML('afterbegin', `<div class="note green"><p><b>Copiamos los datos de tu pedido #${original.id}.</b> Revisalos, cambiá lo que quieras y publicalo.${fotos}</p></div>`);
+    $('.pagehead .sub').textContent = `Copia del pedido #${original.id}`;
+    $('.pagehead .back').href = 'pedidos.html';
+  }
+
   const selector = selectorLocalidad(form);
   let gps = null;
   botonMiUbicacion($('#btn-ubicacion'), selector, (punto, l, err) => {
@@ -87,6 +111,12 @@ try {
         p_profesional: modo === 'profesional' ? pro.id : null,
       });
       if (error) throw error;
+
+      // Las fotos del pedido cancelado pasan al nuevo
+      for (const f of fotosOriginal) {
+        const { error: errCopia } = await sb.storage.from('pedidos').copy(`${original.id}/${f.name}`, `${id}/${f.name}`);
+        if (errCopia) console.error(errCopia);
+      }
 
       // Las fotos se suben en la carpeta del pedido
       for (const file of form.fotos.files) {
