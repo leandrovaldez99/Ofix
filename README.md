@@ -20,7 +20,7 @@ El proyecto de Supabase se llama **ofix** (región São Paulo). La conexión est
 1. **Crear las tablas.** En el panel de Supabase, *SQL Editor* → *New query*, pegar y ejecutar, en orden, los archivos de `supabase/migrations/`:
    1. `20261021000000_esquema_inicial.sql`: tablas, seguridad y flujo de pedidos.
    2. `20261021120000_localidades_y_ubicaciones.sql`: carga las localidades de todo el país (las descarga de `supabase/datos/localidades.json` en este repo, así que el archivo tiene que estar subido a GitHub) y agrega las coordenadas de direcciones, profesionales y pedidos.
-   3. `20261022000000_reactivar_pedido.sql` y `20261022010000_reactivar_con_modo.sql`: reactivar un pedido desactivado.
+   3. `20261022000000_reactivar_pedido.sql`, `20261022010000_reactivar_con_modo.sql` y `20261022020000_borrar_fotos_pedido.sql`: reactivar un pedido desactivado y quitarle fotos.
 2. **Direcciones permitidas.** *Authentication* → *URL Configuration*:
    - *Site URL*: `http://127.0.0.1:5500`
    - *Redirect URLs*: agregar `http://127.0.0.1:5500/**` y `http://localhost:5500/**` (y la dirección donde se publique la app, si se sube a internet).

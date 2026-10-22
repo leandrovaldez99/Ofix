@@ -44,6 +44,7 @@ try {
   let original = null;
   let reactivando = false;
   let fotosOriginal = [];
+  const fotosQuitadas = new Set();
   if ((reactivarId || repetirId) && !pro) {
     const { data } = await sb.from('pedidos').select('id, oficio_id, titulo, descripcion, direccion_id, estado, confirmado_at')
       .eq('id', reactivarId || repetirId).eq('cliente_id', user.id).maybeSingle();
@@ -59,11 +60,36 @@ try {
     fotosOriginal = (archivos || []).filter((a) => a.id);
     const n = fotosOriginal.length;
     const textoFotos = n === 1 ? 'la foto' : `las ${n} fotos`;
+    const fotosNota = n ? ` Más abajo están ${textoFotos} que habías subido: podés quitar alguna o agregar otras.` : '';
     const nota = reactivando
-      ? `<b>Estás reactivando tu pedido #${original.id}.</b> Revisá los datos, cambiá lo que haga falta y elegí cómo encontrar al profesional.${n ? ` Se mantiene${n === 1 ? '' : 'n'} ${textoFotos} que habías subido; podés agregar más.` : ''}`
-      : `<b>Copiamos los datos de tu pedido #${original.id}.</b> Revisalos, cambiá lo que quieras y publicalo.${n ? ` También copiamos ${textoFotos} que habías subido.` : ''}`;
+      ? `<b>Estás reactivando tu pedido #${original.id}.</b> Revisá los datos, cambiá lo que haga falta y elegí cómo encontrar al profesional.${fotosNota}`
+      : `<b>Copiamos los datos de tu pedido #${original.id}.</b> Revisalos, cambiá lo que quieras y publicalo.${fotosNota}`;
     form.insertAdjacentHTML('afterbegin', `<div class="note green"><p>${nota}</p></div>`);
     $('.pagehead .sub').textContent = reactivando ? `Reactivar pedido #${original.id}` : `Copia del pedido #${original.id}`;
+
+    // Fotos del pedido, con la opción de quitarlas (se aplica al publicar)
+    if (n) {
+      const cont = $('#fotos-actuales');
+      const { data: firmadas } = await sb.storage.from('pedidos')
+        .createSignedUrls(fotosOriginal.map((f) => `${original.id}/${f.name}`), 3600);
+      cont.innerHTML = fotosOriginal.map((f, i) => `
+        <div class="foto-item" data-nombre="${esc(f.name)}">
+          <img src="${esc(firmadas?.[i]?.signedUrl || '')}" alt="Foto ${i + 1} del pedido">
+          <button type="button" aria-pressed="false">Quitar</button>
+        </div>`).join('');
+      cont.hidden = false;
+      cont.addEventListener('click', (e) => {
+        const boton = e.target.closest('button');
+        if (!boton) return;
+        const item = boton.closest('.foto-item');
+        const quitarla = !fotosQuitadas.has(item.dataset.nombre);
+        if (quitarla) fotosQuitadas.add(item.dataset.nombre);
+        else fotosQuitadas.delete(item.dataset.nombre);
+        item.classList.toggle('quitada', quitarla);
+        boton.textContent = quitarla ? 'Volver a agregar' : 'Quitar';
+        boton.setAttribute('aria-pressed', String(quitarla));
+      });
+    }
     $('.pagehead .back').href = 'pedidos.html';
   }
 
@@ -121,13 +147,17 @@ try {
         const { error } = await sb.rpc('reactivar_pedido', { p_pedido: original.id, ...datos });
         if (error) throw error;
         id = original.id;
+        if (fotosQuitadas.size) {
+          const { error: errFotos } = await sb.storage.from('pedidos').remove([...fotosQuitadas].map((n) => `${id}/${n}`));
+          if (errFotos) console.error(errFotos);
+        }
       } else {
         const { data, error } = await sb.rpc('publicar_pedido', { ...datos, p_profesional: modo === 'profesional' ? pro.id : null });
         if (error) throw error;
         id = data;
         // En una copia, las fotos del pedido anterior pasan al nuevo
         if (original) {
-          for (const f of fotosOriginal) {
+          for (const f of fotosOriginal.filter((x) => !fotosQuitadas.has(x.name))) {
             const { error: errCopia } = await sb.storage.from('pedidos').copy(`${original.id}/${f.name}`, `${id}/${f.name}`);
             if (errCopia) console.error(errCopia);
           }

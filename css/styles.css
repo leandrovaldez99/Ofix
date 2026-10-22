@@ -465,6 +465,15 @@ body.cargando .app::after {
 .fotos { display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 8px; margin-top: 10px; }
 .fotos a { display: block; aspect-ratio: 1; border-radius: 10px; overflow: hidden; background: var(--chip); }
 .fotos img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.fotos-editables { margin: 0 0 4px; }
+.foto-item { position: relative; aspect-ratio: 1; border-radius: 10px; overflow: hidden; background: var(--chip); }
+.foto-item button {
+  position: absolute; left: 6px; right: 6px; bottom: 6px; height: 28px; border: 0; border-radius: 8px;
+  font: inherit; font-size: 12px; font-weight: 600; cursor: pointer;
+  background: rgba(27, 26, 23, .72); color: #FFFFFF;
+}
+.foto-item.quitada img { opacity: .35; filter: grayscale(1); }
+.foto-item.quitada button { background: var(--surface); color: var(--ink); border: 1px solid var(--line-strong); }
 
 .composer .input:disabled { opacity: .6; }
 .send-btn:disabled { opacity: .5; cursor: not-allowed; }
