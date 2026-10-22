@@ -17,7 +17,9 @@ La app tiene que abrirse desde un servidor local, no con doble clic en el archiv
 
 El proyecto de Supabase se llama **ofix** (región São Paulo). La conexión está en `js/supabase.js`; la clave que figura ahí es la pública (*publishable*) y puede estar en el código: lo que protege los datos son las reglas de seguridad de la base (RLS).
 
-1. **Crear las tablas.** En el panel de Supabase, *SQL Editor* → *New query*, pegar todo `supabase/migrations/20261021000000_esquema_inicial.sql` y ejecutar.
+1. **Crear las tablas.** En el panel de Supabase, *SQL Editor* → *New query*, pegar y ejecutar, en orden, los archivos de `supabase/migrations/`:
+   1. `20261021000000_esquema_inicial.sql`: tablas, seguridad y flujo de pedidos.
+   2. `20261021120000_localidades_y_ubicaciones.sql`: carga las localidades de todo el país (las descarga de `supabase/datos/localidades.json` en este repo, así que el archivo tiene que estar subido a GitHub) y agrega las coordenadas de direcciones, profesionales y pedidos.
 2. **Direcciones permitidas.** *Authentication* → *URL Configuration*:
    - *Site URL*: `http://127.0.0.1:5500`
    - *Redirect URLs*: agregar `http://127.0.0.1:5500/**` y `http://localhost:5500/**` (y la dirección donde se publique la app, si se sube a internet).
@@ -32,7 +34,8 @@ Para probar el flujo completo hacen falta dos cuentas: una de cliente y una de p
 
 ## Cómo funciona
 
-- **Pedidos.** Al publicar con "Que lo tome el primero disponible", la base busca profesionales validados del oficio, disponibles hoy y dentro del radio (las distancias se calculan entre los centros de las localidades). El de mejor puntaje (calificaciones, trabajos hechos y cercanía) lo ve primero y tiene 5 minutos de prioridad; después lo ven todos. El pedido vence a los 30 minutos. Con "Quiero elegir yo" el pedido se guarda y el cliente elige de la lista.
+- **Pedidos.** Al publicar con "Que lo tome el primero disponible", la base busca profesionales validados del oficio, disponibles hoy y dentro del radio. La distancia se mide desde la dirección del cliente hasta la localidad base de cada profesional. El de mejor puntaje (calificaciones, trabajos hechos y cercanía) lo ve primero y tiene 5 minutos de prioridad; después lo ven todos. El pedido vence a los 30 minutos. Con "Quiero elegir yo" el pedido se guarda y el cliente elige de la lista.
+- **Localidades y direcciones.** Se puede elegir cualquier localidad del país: primero la provincia y después la localidad, escribiendo y eligiendo de la lista (salen del catálogo oficial Georef, guardado en `supabase/datos/localidades.json`). Al guardar una dirección, el navegador busca sus coordenadas exactas con la [API Georef](https://www.argentina.gob.ar/georef); si no encuentra la altura, se usa el centro de la localidad. "Usar mi ubicación actual" completa la localidad con el GPS del celular.
 - **Privacidad.** El teléfono y la dirección exacta del cliente solo los ve el profesional confirmado, y lo controla la base de datos, no la página.
 - **Chat.** Se abre cuando el cliente confirma al profesional. Los mensajes y los cambios de estado del pedido llegan en tiempo real.
 - **Calificaciones.** El trabajo se cierra cuando los dos lo marcan como terminado; ahí el cliente puede calificar.
@@ -43,9 +46,11 @@ Para probar el flujo completo hacen falta dos cuentas: una de cliente y una de p
 | --- | --- |
 | `js/supabase.js` | Conexión con Supabase |
 | `js/comun.js` | Sesión, formato de fechas y distancias, mensajes de error y piezas que comparten las pantallas |
+| `js/ubicacion.js` | Selector de provincia y localidad, ubicación exacta de direcciones y "Usar mi ubicación" |
 | `js/ficha.js`, `js/datos-personales.js`, `js/documentos.js`, `js/iconos.js` | Partes compartidas entre algunas pantallas |
 | `js/paginas/` | Un archivo por pantalla |
 | `supabase/migrations/` | Tablas, reglas de seguridad y funciones del flujo de pedidos |
+| `supabase/datos/localidades.json` | Localidades de Argentina con provincia y coordenadas (Georef) |
 | `supabase/validar-profesional.sql` | Consulta para aprobar profesionales |
 
 ## Flujos

@@ -1,7 +1,8 @@
 import {
-  sb, $, $$, esc, param, requerir, listo, fallo, conCarga, limpiarAviso,
+  sb, $, $$, esc, param, requerir, listo, fallo, conCarga, avisar, limpiarAviso,
   OFICIOS, textoDireccion, nombreArchivo, subir, nombreCompleto,
 } from '../comun.js';
+import { selectorLocalidad, botonMiUbicacion, guardarDireccion } from '../ubicacion.js';
 
 try {
   const { user } = await requerir('cliente');
@@ -35,11 +36,21 @@ try {
   selDir.innerHTML = direcciones.map((d) => `<option value="${d.id}">${esc(textoDireccion(d))}</option>`).join('')
     + '<option value="nueva">Otra dirección…</option>';
 
+  const selector = selectorLocalidad(form);
+  let gps = null;
+  botonMiUbicacion($('#btn-ubicacion'), selector, (punto, l, err) => {
+    gps = punto;
+    if (err) avisar($('#btn-ubicacion'), err.message);
+    else limpiarAviso($('#btn-ubicacion'));
+  });
+
   function mostrarNuevaDir() {
     const nueva = selDir.value === 'nueva';
     nuevaDir.hidden = !nueva;
     form.calle.required = nueva;
     form.numero.required = nueva;
+    form.provincia.required = nueva;
+    form.localidad_nombre.required = nueva;
   }
   selDir.addEventListener('change', mostrarNuevaDir);
   mostrarNuevaDir();
@@ -53,16 +64,16 @@ try {
     await conCarga(e.submitter, async () => {
       let direccion = Number(selDir.value);
       if (selDir.value === 'nueva') {
-        const { data, error } = await sb.from('direcciones').insert({
+        const data = await guardarDireccion({
           calle: form.calle.value.trim(),
           numero: form.numero.value.trim(),
-          localidad: form.localidad.value,
-          cp: form.cp.value.trim() || null,
-        }).select('id').single();
-        if (error) throw error;
+          cp: form.cp.value.trim(),
+          localidad: selector.valor,
+          gps,
+        });
         direccion = data.id;
         // Si algo falla después, al reintentar no se vuelve a crear
-        selDir.insertAdjacentHTML('afterbegin', `<option value="${data.id}">${esc(`${form.calle.value} ${form.numero.value}, ${form.localidad.value}`)}</option>`);
+        selDir.insertAdjacentHTML('afterbegin', `<option value="${data.id}">${esc(textoDireccion(data))}</option>`);
         selDir.value = String(data.id);
         mostrarNuevaDir();
       }

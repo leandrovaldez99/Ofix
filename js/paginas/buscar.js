@@ -8,6 +8,7 @@ try {
   const pedidoId = param('pedido');
   const main = $('main');
   let localidad;
+  let punto; // desde dónde se miden las distancias
   let pedido;
 
   if (pedidoId) {
@@ -15,6 +16,11 @@ try {
     pedido = await cargarPedido(pedidoId);
     if (!pedido || !['borrador', 'buscando'].includes(pedido.estado)) await redirigir('pedidos.html');
     localidad = pedido.localidad;
+    punto = pedido.direccion?.lat != null ? pedido.direccion : null;
+    if (!punto) {
+      const { data: loc } = await sb.from('localidades').select('lat, lng').eq('id', pedido.localidad_id).maybeSingle();
+      punto = loc;
+    }
     $$('[name=oficio]').forEach((r) => { r.checked = r.value === pedido.oficio_id; r.disabled = !r.checked; });
     $('#cerca').textContent = `Cerca de ${textoDireccion(pedido.direccion) || pedido.localidad}`;
     $('#nota').innerHTML = `<p>Elegí a quién mandarle tu pedido <b>#${pedido.id} · ${esc(pedido.titulo)}</b>. Si no querés elegir, se lo ofrecemos al primero disponible.</p>`;
@@ -31,10 +37,11 @@ try {
     $('.pagehead .back').href = 'pedidos.html';
   } else {
     const { data: dir } = await sb.from('direcciones').select('*').eq('cliente_id', user.id).eq('principal', true).maybeSingle();
-    localidad = dir?.localidad || 'Tigre';
+    localidad = dir?.localidad;
+    punto = dir;
     $('#cerca').innerHTML = dir
       ? esc(`Cerca de ${textoDireccion(dir)}`)
-      : 'Cerca de Tigre · <a href="perfil.html">agregá tu dirección</a>';
+      : '<a href="perfil.html">Agregá tu dirección</a> para ver profesionales cerca tuyo';
     const oficio = param('oficio');
     if (oficio && OFICIOS[oficio]) $(`[name=oficio][value="${oficio}"]`).checked = true;
   }
@@ -45,9 +52,16 @@ try {
     $('#titulo').textContent = OFICIOS[oficio];
     if (!pedido) $('#btn-publicar').href = `nuevo-pedido.html?oficio=${oficio}`;
 
+    if (!punto) {
+      $('#sub').textContent = 'Sin dirección cargada';
+      $('#lista').innerHTML = `<div class="card empty" style="grid-column:1/-1"><b>Agregá tu dirección</b>Así te mostramos los profesionales que trabajan cerca tuyo y a qué distancia están. <a href="perfil.html">Agregar dirección</a></div>`;
+      return;
+    }
+
     const { data, error } = await sb.rpc('buscar_profesionales', {
       p_oficio: oficio,
-      p_localidad: localidad,
+      p_lat: punto.lat,
+      p_lng: punto.lng,
       p_radio: Number($('#f-rad').value),
       p_solo_hoy: $('[name=hoy]').checked,
       p_solo_matriculados: $('[name=mat]').checked,

@@ -1,5 +1,5 @@
 import {
-  sb, $, esc, param, requerir, listo, fallo, conCarga, redirigir, cargarLocalidades, distancia,
+  sb, $, esc, param, requerir, listo, fallo, conCarga, redirigir, distanciaKm,
   OFICIOS, avatar, rating, estrellas, km, hace, nombreCompleto, nombreCorto, ponerTitulo,
 } from '../comun.js';
 import { resumenHorarios } from '../ficha.js';
@@ -17,15 +17,14 @@ try {
     sb.from('horarios').select('*').eq('profesional_id', id),
     sb.from('resenas').select('puntaje, comentario, created_at, cliente:perfiles!resenas_cliente_id_fkey(nombre, apellido)')
       .eq('profesional_id', id).order('created_at', { ascending: false }).limit(20),
-    sb.from('direcciones').select('localidad').eq('cliente_id', user.id).eq('principal', true).maybeSingle(),
-    cargarLocalidades(),
+    sb.from('direcciones').select('lat, lng').eq('cliente_id', user.id).eq('principal', true).maybeSingle(),
   ]);
   if (error) throw error;
   if (!pro) await redirigir('buscar.html');
 
   ponerTitulo(nombreCompleto(pro));
   $('#volver').href = `buscar.html?oficio=${pro.oficios[0] || 'plomeria'}${pedidoId ? `&pedido=${pedidoId}` : ''}`;
-  const d = dir ? distancia(dir.localidad, pro.localidad) : null;
+  const d = dir ? distanciaKm(dir, pro) : null;
   const validado = pro.estado_validacion === 'validado';
 
   $('#contenido').innerHTML = `
@@ -52,7 +51,7 @@ try {
       ${!validado && !certs?.length ? '<p class="small muted">Todavía no tiene certificaciones verificadas.</p>' : ''}
     </div>
     <div class="card">
-      <div class="kv">${icono.ubicacion()}<div><b>Zona:</b> ${esc(pro.localidad)} y alrededores (${pro.radio_km} km)${d != null ? ` · ${km(d)} tuyo` : ''}</div></div>
+      <div class="kv">${icono.ubicacion()}<div><b>Zona:</b> ${esc(`${pro.localidad}, ${pro.provincia}`)} y alrededores (${pro.radio_km} km)${d != null ? ` · ${km(d)} tuyo` : ''}</div></div>
       <div class="kv">${icono.reloj()}<div><b>Horarios:</b> ${esc(resumenHorarios(horarios || []))}</div></div>
       <div class="kv">${icono.valija()}<div><b>En Ofix desde:</b> ${esc(new Date(pro.created_at).toLocaleDateString('es-AR', { month: 'long', year: 'numeric' }))}</div></div>
     </div>

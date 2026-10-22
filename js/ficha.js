@@ -11,10 +11,10 @@ export async function cargarFicha(uid) {
   return { ...ficha, oficios: (oficios || []).map((o) => o.oficio_id), horarios: horarios || [] };
 }
 
-export function llenarFicha(form, ficha) {
+export async function llenarFicha(form, ficha, selector) {
   $$('[name=oficio]', form).forEach((c) => { c.checked = ficha.oficios.includes(c.value); });
   form.descripcion.value = ficha.descripcion || '';
-  form.localidad.value = ficha.localidad;
+  await selector.cargar(ficha.localidad_id);
   form.radio.value = String(ficha.radio_km);
   for (let dia = 0; dia < 7; dia++) {
     const h = ficha.horarios.find((x) => x.dia === dia);
@@ -30,6 +30,7 @@ export function llenarFicha(form, ficha) {
 export function leerFicha(form) {
   const oficios = $$('[name=oficio]:checked', form).map((c) => c.value);
   if (!oficios.length) throw new Error('Elegí al menos un oficio.');
+  if (!form.localidad_id.value) throw new Error('Elegí tu localidad de la lista que aparece al escribir.');
   const horarios = [];
   for (let dia = 0; dia < 7; dia++) {
     if (!form[`dia-${dia}`].checked) continue;
@@ -44,13 +45,13 @@ export function leerFicha(form) {
     oficios,
     horarios,
     descripcion: form.descripcion.value.trim() || null,
-    localidad: form.localidad.value,
+    localidad_id: form.localidad_id.value,
     radio_km: Number(form.radio.value),
   };
 }
 
 export async function guardarFicha(uid, datos, existe) {
-  const ficha = { descripcion: datos.descripcion, localidad: datos.localidad, radio_km: datos.radio_km };
+  const ficha = { descripcion: datos.descripcion, localidad_id: datos.localidad_id, radio_km: datos.radio_km };
   const { error } = existe
     ? await sb.from('profesionales').update(ficha).eq('id', uid)
     : await sb.from('profesionales').insert({ id: uid, ...ficha });

@@ -16,7 +16,7 @@ try {
   if (error) throw error;
 
   $('#ubicacion').innerHTML = dir
-    ? esc(`${dir.localidad}, Buenos Aires`)
+    ? esc(`${dir.localidad}, ${dir.provincia}`)
     : '<a href="perfil.html">Agregá tu dirección</a>';
 
   const activos = pedidos.filter((p) => p.estado !== 'terminado');

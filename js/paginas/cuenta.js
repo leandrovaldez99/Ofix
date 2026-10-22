@@ -29,7 +29,7 @@ try {
     pendiente: '<span class="chip warn">Pendiente de validación</span>',
     rechazado: '<span class="chip clay">Validación rechazada</span>',
   }[yo.estado_validacion];
-  $('#zona').textContent = `${yo.localidad} · ${yo.radio_km} km · ${resumenHorarios(horarios || [])}`;
+  $('#zona').textContent = `${yo.localidad}, ${yo.provincia} · ${yo.radio_km} km · ${resumenHorarios(horarios || [])}`;
 
   // ---------- Documentos ----------
 

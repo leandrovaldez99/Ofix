@@ -1,5 +1,5 @@
 import {
-  sb, $, esc, param, requerir, listo, fallo, conCarga, alConfirmar, redirigir, cargarLocalidades, distancia,
+  sb, $, esc, param, requerir, listo, fallo, conCarga, alConfirmar, redirigir,
   OFICIOS, km, hace, minutosHasta, diaYHora, nombreCorto,
 } from '../comun.js';
 import { icono } from '../iconos.js';
@@ -8,12 +8,9 @@ try {
   const { user } = await requerir('profesional');
   const id = Number(param('id'));
 
-  const [{ data: oferta }, { data: yo }] = await Promise.all([
-    sb.from('ofertas').select('*, pedido:pedidos(*, cliente:perfiles!pedidos_cliente_id_fkey(nombre, apellido))')
-      .eq('pedido_id', id).eq('profesional_id', user.id).maybeSingle(),
-    sb.from('profesionales').select('localidad').eq('id', user.id).single(),
-    cargarLocalidades(),
-  ]);
+  const { data: oferta } = await sb.from('ofertas')
+    .select('*, pedido:pedidos(*, cliente:perfiles!pedidos_cliente_id_fkey(nombre, apellido))')
+    .eq('pedido_id', id).eq('profesional_id', user.id).maybeSingle();
   const p = oferta?.pedido;
   if (!p) await redirigir('trabajos.html');
   if (oferta.estado === 'aceptada') await redirigir(`chat-profesional.html?id=${id}`);
@@ -49,7 +46,7 @@ try {
         <div class="fotos">${fotos.map((f) => `<a href="${esc(f.signedUrl)}" target="_blank" rel="noopener"><img src="${esc(f.signedUrl)}" alt="Foto del problema"></a>`).join('')}</div>` : ''}
     </div>
     <div class="card">
-      <div class="kv">${icono.ubicacion()}<div><b>Zona:</b> ${esc(p.localidad)} · ${esc(km(distancia(yo.localidad, p.localidad)))} tuyo<div class="xsmall muted" style="margin-top:2px">La dirección exacta se muestra cuando el cliente te confirma</div></div></div>
+      <div class="kv">${icono.ubicacion()}<div><b>Zona:</b> ${esc([`${p.localidad}, ${p.provincia}`, oferta.distancia_km != null && `${km(oferta.distancia_km)} tuyo`].filter(Boolean).join(' · '))}<div class="xsmall muted" style="margin-top:2px">La dirección exacta se muestra cuando el cliente te confirma</div></div></div>
       <div class="kv">${icono.persona()}<div><b>Cliente:</b> ${esc(nombreCorto(p.cliente))}</div></div>
       <div class="kv">${icono.reloj()}<div><b>Publicado:</b> ${esc(diaYHora(p.created_at))}</div></div>
     </div>

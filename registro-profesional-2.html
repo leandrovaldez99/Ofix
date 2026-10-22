@@ -44,8 +44,10 @@
     <div class="field"><label for="f-desc">Contá brevemente qué hacés (opcional)</label>
       <textarea class="textarea" id="f-desc" name="descripcion" rows="3" maxlength="255" placeholder="Ej.: Plomero matriculado, destapaciones y termotanques."></textarea></div>
     <div class="form-grid two">
-      <div class="field"><label for="f-localidad">Localidad base</label><select class="select" id="f-localidad" name="localidad"><option selected>Tigre</option><option>Don Torcuato</option><option>Benavídez</option><option>General Pacheco</option><option>San Fernando</option><option>Nordelta</option><option>Victoria</option><option>Rincón de Milberg</option><option>El Talar</option><option>San Isidro</option></select></div>
+      <div class="field"><label for="f-prov">Provincia</label><select class="select" id="f-prov" name="provincia" required></select></div>
+        <div class="field"><label for="f-loc">Localidad base</label><input class="input" id="f-loc" name="localidad_nombre" type="text" list="f-loc-lista" autocomplete="off" placeholder="Escribí y elegí de la lista" required><datalist id="f-loc-lista"></datalist><input type="hidden" name="localidad_id"></div>
       <div class="field"><label for="f-radio">Radio de cobertura</label><select class="select" id="f-radio" name="radio"><option value="5">5 km</option><option value="10" selected>10 km</option><option value="15">15 km</option><option value="20">20 km</option><option value="30">30 km</option></select></div>
+      <button class="link-btn span-2" type="button" id="btn-ubicacion" style="justify-self:start">Usar mi ubicación actual</button>
     </div>
     <div class="field"><span class="field-label">Días y horarios en los que recibís pedidos</span>
 <div class="card" style="padding:6px 12px">

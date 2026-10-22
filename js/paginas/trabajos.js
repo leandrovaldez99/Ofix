@@ -1,15 +1,12 @@
 import {
-  sb, $, esc, requerir, listo, fallo, redirigir, avisar, textoError, cargarLocalidades, distancia,
+  sb, $, esc, requerir, listo, fallo, redirigir, avisar, textoError,
   OFICIOS, iniciales, rating, km, hace, minutosHasta, nombreCorto, fechaVisita,
 } from '../comun.js';
 import { icono } from '../iconos.js';
 
 try {
   const { user } = await requerir('profesional');
-  const [{ data: yo }] = await Promise.all([
-    sb.from('profesionales_publicos').select('*').eq('id', user.id).maybeSingle(),
-    cargarLocalidades(),
-  ]);
+  const { data: yo } = await sb.from('profesionales_publicos').select('*').eq('id', user.id).maybeSingle();
   if (!yo) await redirigir('registro-profesional-2.html');
 
   $('#av').textContent = iniciales(yo);
@@ -46,7 +43,7 @@ try {
   async function pintar() {
     const [{ data: ofertas, error }, { data: enCurso, error: e2 }] = await Promise.all([
       sb.from('ofertas')
-        .select('estado, elegido, prioridad_hasta, visible_desde, pedido:pedidos(id, titulo, oficio_id, localidad, estado, vence_at, modo, created_at)')
+        .select('estado, elegido, prioridad_hasta, visible_desde, distancia_km, pedido:pedidos(id, titulo, oficio_id, localidad, estado, vence_at, modo, created_at)')
         .eq('profesional_id', user.id).in('estado', ['pendiente', 'no_disponible'])
         .gte('created_at', new Date(Date.now() - 12 * 3600000).toISOString())
         .order('created_at', { ascending: false }),
@@ -71,7 +68,7 @@ try {
       if (disponible && o.prioridad_hasta && new Date(o.prioridad_hasta) > ahora) {
         chips.push(`<span class="chip warn">Tu prioridad · ${minutosHasta(o.prioridad_hasta)} min</span>`);
       }
-      const d = distancia(yo.localidad, p.localidad);
+      const d = o.distancia_km;
       return `<a class="card" href="${disponible ? 'oferta' : 'oferta-no-disponible'}.html?id=${p.id}">
         <div class="row wrap" style="gap:7px">${chips.join('')}<span class="ml-auto xsmall muted">${esc(hace(o.visible_desde))}</span></div>
         <p style="margin-top:8px;font-size:15px;font-weight:700;line-height:1.35">${esc(p.titulo)}</p>

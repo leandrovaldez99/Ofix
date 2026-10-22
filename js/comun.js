@@ -106,22 +106,12 @@ export function fechaVisita(f) {
 
 // ---------- Distancias ----------
 
-let localidades;
-export async function cargarLocalidades() {
-  if (!localidades) {
-    const { data } = await sb.from('localidades').select('*');
-    localidades = Object.fromEntries((data || []).map((l) => [l.nombre, l]));
-  }
-  return localidades;
-}
-
-export function distancia(a, b) {
-  const la = localidades?.[a];
-  const lb = localidades?.[b];
-  if (!la || !lb) return null;
+// Distancia en km entre dos puntos { lat, lng }
+export function distanciaKm(a, b) {
+  if (a?.lat == null || b?.lat == null) return null;
   const rad = (g) => (g * Math.PI) / 180;
-  const h = Math.sin(rad(lb.lat - la.lat) / 2) ** 2 +
-    Math.cos(rad(la.lat)) * Math.cos(rad(lb.lat)) * Math.sin(rad(lb.lng - la.lng) / 2) ** 2;
+  const h = Math.sin(rad(b.lat - a.lat) / 2) ** 2 +
+    Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(rad(b.lng - a.lng) / 2) ** 2;
   return 6371 * 2 * Math.asin(Math.sqrt(h));
 }
 
@@ -292,7 +282,7 @@ export function alConfirmar(idModal, accion) {
 export const SELECT_PEDIDO = `*,
   cliente:perfiles!pedidos_cliente_id_fkey(id, nombre, apellido),
   profesional:perfiles!pedidos_profesional_id_fkey(id, nombre, apellido),
-  direccion:direcciones(calle, numero, localidad, cp),
+  direccion:direcciones(calle, numero, localidad, provincia, cp, lat, lng, ubicacion_exacta),
   resena:resenas(puntaje)`;
 
 export async function cargarPedido(id) {
