@@ -335,7 +335,7 @@ export function estadoPedido(p) {
     asignado: { texto: 'Un profesional aceptó', clase: 'green' },
     confirmado: { texto: p.visita_at ? 'Visita acordada' : 'Coordinando la visita', clase: 'green' },
     terminado: { texto: p.resena ? 'Terminado y calificado' : 'Terminado · falta calificar', clase: p.resena ? 'gray' : 'green' },
-    cancelado: { texto: 'Cancelado', clase: 'gray' },
+    cancelado: { texto: p.confirmado_at ? 'Cancelado' : 'Desactivado', clase: 'gray' },
   }[p.estado];
 }
 
@@ -348,7 +348,9 @@ export function tarjetaPedido(p, { href, detalle, accion }) {
     <div class="status ${e.clase}"><span class="status-dot"></span><span class="small" style="font-weight:600;color:${COLOR_ESTADO[e.clase]}">${esc(e.texto)}</span><span class="ml-auto xsmall muted">${esc(hace(p.created_at))}</span></div>
     <p style="margin-top:9px;font-size:14px;font-weight:600">${esc(p.titulo)}</p>
     <p class="small muted" style="margin-top:3px">${esc(detalle)}</p>
-    ${accion && !href ? `<a class="btn btn-white btn-sm" style="margin-top:12px" href="${esc(accion.href)}">${esc(accion.texto)}</a>` : ''}
+    ${accion && !href ? (accion.href
+      ? `<a class="btn btn-white btn-sm" style="margin-top:12px" href="${esc(accion.href)}">${esc(accion.texto)}</a>`
+      : `<button class="btn btn-white btn-sm" style="margin-top:12px" type="button" data-accion="${esc(accion.accion)}" data-id="${p.id}">${esc(accion.texto)}</button>`) : ''}
   </${tag}>`;
 }
 

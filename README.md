@@ -20,6 +20,7 @@ El proyecto de Supabase se llama **ofix** (región São Paulo). La conexión est
 1. **Crear las tablas.** En el panel de Supabase, *SQL Editor* → *New query*, pegar y ejecutar, en orden, los archivos de `supabase/migrations/`:
    1. `20261021000000_esquema_inicial.sql`: tablas, seguridad y flujo de pedidos.
    2. `20261021120000_localidades_y_ubicaciones.sql`: carga las localidades de todo el país (las descarga de `supabase/datos/localidades.json` en este repo, así que el archivo tiene que estar subido a GitHub) y agrega las coordenadas de direcciones, profesionales y pedidos.
+   3. `20261022000000_reactivar_pedido.sql`: reactivar un pedido desactivado.
 2. **Direcciones permitidas.** *Authentication* → *URL Configuration*:
    - *Site URL*: `http://127.0.0.1:5500`
    - *Redirect URLs*: agregar `http://127.0.0.1:5500/**` y `http://localhost:5500/**` (y la dirección donde se publique la app, si se sube a internet).
@@ -35,6 +36,7 @@ Para probar el flujo completo hacen falta dos cuentas: una de cliente y una de p
 ## Cómo funciona
 
 - **Pedidos.** Al publicar con "Que lo tome el primero disponible", la base busca profesionales validados del oficio, disponibles hoy y dentro del radio. La distancia se mide desde la dirección del cliente hasta la localidad base de cada profesional. El de mejor puntaje (calificaciones, trabajos hechos y cercanía) lo ve primero y tiene 5 minutos de prioridad; después lo ven todos. El pedido vence a los 30 minutos. Con "Quiero elegir yo" el pedido se guarda y el cliente elige de la lista.
+- **Desactivar y reactivar.** El cliente puede desactivar un pedido mientras busca profesional y reactivarlo después desde *Mis pedidos*: vuelve a ofrecerse con el mismo número, sin crear una copia. Si se cancela un trabajo que ya tenía un profesional confirmado, se publica de nuevo como pedido nuevo.
 - **Localidades y direcciones.** Se puede elegir cualquier localidad del país: primero la provincia y después la localidad, escribiendo y eligiendo de la lista (salen del catálogo oficial Georef, guardado en `supabase/datos/localidades.json`). Al guardar una dirección, el navegador busca sus coordenadas exactas con la [API Georef](https://www.argentina.gob.ar/georef); si no encuentra la altura, se usa el centro de la localidad. "Usar mi ubicación actual" completa la localidad con el GPS del celular.
 - **Privacidad.** El teléfono y la dirección exacta del cliente solo los ve el profesional confirmado, y lo controla la base de datos, no la página.
 - **Chat.** Se abre cuando el cliente confirma al profesional. Los mensajes y los cambios de estado del pedido llegan en tiempo real.

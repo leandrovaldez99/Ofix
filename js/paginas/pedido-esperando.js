@@ -35,7 +35,7 @@ try {
       <p class="small muted" style="margin-top:8px;line-height:1.5">${explicacion}</p>
       <div class="row xsmall muted" style="margin-top:11px;gap:7px">${icono.reloj(15)}<span>El pedido vence en <b id="vence"></b></span></div>
     </div>
-    <a class="btn btn-ghost" href="#cancelar">Cancelar pedido</a>
+    <a class="btn btn-ghost" href="#cancelar">Desactivar pedido</a>
   </div>
   <div>
     ${resumenPedido(p, { direccion: textoDireccion(p.direccion) })}
