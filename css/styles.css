@@ -599,4 +599,3 @@ body.cargando .app::after {
 .segmentado label.chip { min-height: 30px; padding: 5px 13px; background: transparent; }
 .segmentado label.chip:hover { background: #E6E0D3; }
 .segmentado label.chip:has(input:checked) { background: var(--accent); color: #FFFFFF; }
-label.chip.filtro:has(input:checked)::before { content: "✓"; font-weight: 700; margin-right: 6px; }
