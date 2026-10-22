@@ -371,7 +371,7 @@ export function textoDireccion(d) {
 export function lineaTiempo(p, nombrePro) {
   const pasos = [
     ['Publicado', diaYHora(p.created_at), true],
-    ['Profesional asignado',
+    [p.asignado_at ? 'Profesional asignado' : 'Asignando profesional',
       p.asignado_at ? `${diaYHora(p.asignado_at)}${nombrePro ? ` · ${nombrePro}` : ''}` : 'El de mejor puntaje tiene prioridad; si no responde, pasa al siguiente',
       !!p.asignado_at],
     ['Visita acordada por chat', p.visita_at ? fechaVisita(p.visita_at) : 'Pónganse de acuerdo en día y hora', !!p.visita_at],
