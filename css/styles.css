@@ -237,7 +237,7 @@ input[type="time"].input { padding: 0 10px; }
 /* ---------- Chips ---------- */
 
 .chips { display: flex; gap: 7px; flex-wrap: wrap; }
-.chips.scroll { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 0 16px; }
+.chips.scroll { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: -5px -16px; padding: 5px 16px; }
 .chips.scroll::-webkit-scrollbar { display: none; }
 .chip {
   background: var(--chip); color: var(--ink); border: none; border-radius: 999px;
@@ -248,7 +248,7 @@ button.chip { min-height: 34px; padding: 6px 13px; }
 button.chip:hover { background: #E6E0D3; }
 a.chip, label.chip { min-height: 34px; padding: 6px 13px; color: var(--ink); cursor: pointer; }
 a.chip:hover, label.chip:hover { background: #E6E0D3; color: var(--ink); }
-label.chip:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+label.chip:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
 .chip.on, label.chip:has(input:checked),
 a.chip.on:hover, label.chip:has(input:checked):hover { background: var(--accent); color: #FFFFFF; }
 
@@ -537,7 +537,7 @@ body.cargando .app::after {
   .form-grid.two { grid-template-columns: 1fr 1fr; }
   .form-grid .span-2 { grid-column: span 2; }
   .narrow { max-width: 560px; margin: 0 auto; }
-  .chips.scroll { flex-wrap: wrap; margin: 0; padding: 0; }
+  .chips.scroll { flex-wrap: wrap; margin: -5px; padding: 5px; }
   .btn.fit { width: auto; padding: 0 26px; align-self: flex-start; }
   .hide-desktop { display: none !important; }
   .only-desktop { display: initial; }
