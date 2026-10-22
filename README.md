@@ -13,6 +13,16 @@ La app tiene que abrirse desde un servidor local, no con doble clic en el archiv
 - Con VS Code: instalar la extensión **Live Server**, clic derecho en `index.html` → *Open with Live Server* (abre `http://127.0.0.1:5500`).
 - O desde una terminal en la carpeta del proyecto: `python -m http.server 5500` y abrir `http://127.0.0.1:5500`.
 
+## Publicar cambios
+
+La app se publica sola con GitHub Pages cada vez que se sube un cambio a `main`. Antes de hacer commit conviene correr:
+
+```
+python herramientas/versionar.py
+```
+
+Le pone una marca de versión a los estilos y a los archivos JS en todas las páginas. Sin eso, el navegador puede seguir mostrando la versión anterior hasta 10 minutos (o hasta apretar Ctrl+F5).
+
 ## Configurar Supabase (una sola vez)
 
 El proyecto de Supabase se llama **ofix** (región São Paulo). La conexión está en `js/supabase.js`; la clave que figura ahí es la pública (*publishable*) y puede estar en el código: lo que protege los datos son las reglas de seguridad de la base (RLS).

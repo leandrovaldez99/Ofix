@@ -21,7 +21,7 @@ try {
     <button class="btn btn-clay" id="btn-reintentar">Volver a intentar</button>
     ${radioNuevo > p.radio_km ? `<button class="btn btn-white" id="btn-ampliar">Ampliar el rango a ${radioNuevo} km</button>` : ''}
     <a class="btn btn-white" href="buscar.html?pedido=${p.id}&oficio=${p.oficio_id}">Elegir yo un profesional</a>
-    <a class="link-btn center" href="#cancelar">Desactivar pedido</a>
+    <a class="btn btn-danger" href="#cancelar">Desactivar pedido</a>
   </div>
   <div>${resumenPedido(p, { direccion: textoDireccion(p.direccion) })}</div>`;
 
