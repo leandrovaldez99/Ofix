@@ -74,8 +74,8 @@ try {
         .createSignedUrls(fotosOriginal.map((f) => `${original.id}/${f.name}`), 3600);
       cont.innerHTML = fotosOriginal.map((f, i) => `
         <div class="foto-item" data-nombre="${esc(f.name)}">
-          <img src="${esc(firmadas?.[i]?.signedUrl || '')}" alt="Foto ${i + 1} del pedido">
-          <button type="button" aria-pressed="false">Quitar</button>
+          <div class="foto-marco"><img src="${esc(firmadas?.[i]?.signedUrl || '')}" alt="Foto ${i + 1} del pedido"></div>
+          <button class="foto-quitar" type="button" aria-pressed="false">Quitar</button>
         </div>`).join('');
       cont.hidden = false;
       cont.addEventListener('click', (e) => {
