@@ -1,5 +1,5 @@
 import {
-  sb, $, requerir, listo, fallo, conCarga, SELECT_PEDIDO, tarjetaPedido, paginaPedidoCliente,
+  sb, $, requerir, listo, fallo, SELECT_PEDIDO, tarjetaPedido, paginaPedidoCliente,
   OFICIOS, nombreCompleto, textoDireccion,
 } from '../comun.js';
 
@@ -21,13 +21,13 @@ try {
     return `${OFICIOS[p.oficio_id]} · ${quien}`;
   };
 
-  // Desactivado antes de confirmar: se reactiva el mismo pedido.
+  // Desactivado antes de confirmar: se reactiva el mismo pedido (eligiendo otra vez cómo buscar).
   // Cancelado con un profesional ya confirmado: se publica como pedido nuevo.
   function accionDe(p) {
     if (p.estado !== 'cancelado') return null;
     return p.confirmado_at
       ? { href: `nuevo-pedido.html?repetir=${p.id}`, texto: 'Publicar de nuevo' }
-      : { accion: 'reactivar', texto: 'Reactivar pedido' };
+      : { href: `nuevo-pedido.html?reactivar=${p.id}`, texto: 'Reactivar pedido' };
   }
 
   $('#listas').innerHTML = pedidos.length
@@ -39,18 +39,6 @@ try {
         accion: accionDe(p),
       })).join('')}</div>`).join('')
     : '<div class="card empty"><b>Todavía no publicaste ningún pedido</b>Contá qué necesitás y te contesta un profesional de tu zona.</div>';
-  $('#listas').addEventListener('click', async (e) => {
-    const boton = e.target.closest('[data-accion="reactivar"]');
-    if (!boton) return;
-    await conCarga(boton, async () => {
-      const { data: estado, error: err } = await sb.rpc('reactivar_pedido', { p_pedido: Number(boton.dataset.id) });
-      if (err) throw err;
-      const p = pedidos.find((x) => x.id === Number(boton.dataset.id));
-      location.href = estado === 'buscando'
-        ? `pedido-esperando.html?id=${p.id}`
-        : `buscar.html?pedido=${p.id}&oficio=${p.oficio_id}`;
-    });
-  });
   listo();
 } catch (err) {
   fallo(err);

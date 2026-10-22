@@ -36,14 +36,19 @@ try {
   selDir.innerHTML = direcciones.map((d) => `<option value="${d.id}">${esc(textoDireccion(d))}</option>`).join('')
     + '<option value="nueva">Otra dirección…</option>';
 
-  // "Publicar de nuevo" un pedido cancelado: se copian los datos y las fotos a un pedido nuevo
+  // Partir de un pedido desactivado o cancelado:
+  //   ?reactivar=ID → se reactiva ese mismo pedido (mismo número)
+  //   ?repetir=ID   → se publica una copia (cuando ya había un profesional confirmado)
+  const reactivarId = param('reactivar');
   const repetirId = param('repetir');
   let original = null;
+  let reactivando = false;
   let fotosOriginal = [];
-  if (repetirId && !pro) {
-    const { data } = await sb.from('pedidos').select('id, oficio_id, titulo, descripcion, direccion_id')
-      .eq('id', repetirId).eq('cliente_id', user.id).maybeSingle();
+  if ((reactivarId || repetirId) && !pro) {
+    const { data } = await sb.from('pedidos').select('id, oficio_id, titulo, descripcion, direccion_id, estado, confirmado_at')
+      .eq('id', reactivarId || repetirId).eq('cliente_id', user.id).maybeSingle();
     original = data;
+    reactivando = !!(reactivarId && data?.estado === 'cancelado' && !data.confirmado_at);
   }
   if (original) {
     if (OFICIOS[original.oficio_id]) $(`[name=oficio][value="${original.oficio_id}"]`).checked = true;
@@ -52,11 +57,13 @@ try {
     if (direcciones.some((d) => d.id === original.direccion_id)) selDir.value = String(original.direccion_id);
     const { data: archivos } = await sb.storage.from('pedidos').list(String(original.id));
     fotosOriginal = (archivos || []).filter((a) => a.id);
-    const fotos = fotosOriginal.length
-      ? ` También copiamos ${fotosOriginal.length === 1 ? 'la foto' : `las ${fotosOriginal.length} fotos`} que habías subido.`
-      : '';
-    form.insertAdjacentHTML('afterbegin', `<div class="note green"><p><b>Copiamos los datos de tu pedido #${original.id}.</b> Revisalos, cambiá lo que quieras y publicalo.${fotos}</p></div>`);
-    $('.pagehead .sub').textContent = `Copia del pedido #${original.id}`;
+    const n = fotosOriginal.length;
+    const textoFotos = n === 1 ? 'la foto' : `las ${n} fotos`;
+    const nota = reactivando
+      ? `<b>Estás reactivando tu pedido #${original.id}.</b> Revisá los datos, cambiá lo que haga falta y elegí cómo encontrar al profesional.${n ? ` Se mantiene${n === 1 ? '' : 'n'} ${textoFotos} que habías subido; podés agregar más.` : ''}`
+      : `<b>Copiamos los datos de tu pedido #${original.id}.</b> Revisalos, cambiá lo que quieras y publicalo.${n ? ` También copiamos ${textoFotos} que habías subido.` : ''}`;
+    form.insertAdjacentHTML('afterbegin', `<div class="note green"><p>${nota}</p></div>`);
+    $('.pagehead .sub').textContent = reactivando ? `Reactivar pedido #${original.id}` : `Copia del pedido #${original.id}`;
     $('.pagehead .back').href = 'pedidos.html';
   }
 
@@ -102,20 +109,29 @@ try {
         mostrarNuevaDir();
       }
 
-      const { data: id, error } = await sb.rpc('publicar_pedido', {
+      const datos = {
         p_oficio: $('[name=oficio]:checked').value,
         p_titulo: form.titulo.value.trim(),
         p_descripcion: form.descripcion.value.trim(),
         p_direccion: direccion,
         p_modo: modo === 'primero' ? 'primero' : 'elegido',
-        p_profesional: modo === 'profesional' ? pro.id : null,
-      });
-      if (error) throw error;
-
-      // Las fotos del pedido cancelado pasan al nuevo
-      for (const f of fotosOriginal) {
-        const { error: errCopia } = await sb.storage.from('pedidos').copy(`${original.id}/${f.name}`, `${id}/${f.name}`);
-        if (errCopia) console.error(errCopia);
+      };
+      let id;
+      if (reactivando) {
+        const { error } = await sb.rpc('reactivar_pedido', { p_pedido: original.id, ...datos });
+        if (error) throw error;
+        id = original.id;
+      } else {
+        const { data, error } = await sb.rpc('publicar_pedido', { ...datos, p_profesional: modo === 'profesional' ? pro.id : null });
+        if (error) throw error;
+        id = data;
+        // En una copia, las fotos del pedido anterior pasan al nuevo
+        if (original) {
+          for (const f of fotosOriginal) {
+            const { error: errCopia } = await sb.storage.from('pedidos').copy(`${original.id}/${f.name}`, `${id}/${f.name}`);
+            if (errCopia) console.error(errCopia);
+          }
+        }
       }
 
       // Las fotos se suben en la carpeta del pedido
