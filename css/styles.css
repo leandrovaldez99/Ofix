@@ -551,3 +551,18 @@ body.cargando .app::after {
   .auth-side .foot { font-size: 12px; color: var(--green-ink); }
   .auth-main .brand-mobile { display: none; }
 }
+
+/* ---------- Sugerencias de localidad ---------- */
+.combo { position: relative; }
+.sugerencias {
+  position: absolute; top: 100%; left: 0; right: 0; z-index: 30;
+  margin: 4px 0 0; padding: 4px; list-style: none;
+  background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--radius-sm);
+  box-shadow: 0 12px 28px rgba(27, 26, 23, .14);
+  max-height: 264px; overflow-y: auto;
+}
+.sugerencias li { display: flex; flex-direction: column; gap: 1px; padding: 9px 11px; border-radius: 9px; cursor: pointer; font-size: 14px; }
+.sugerencias li b { font-weight: 600; }
+.sugerencias li small { font-size: 12px; color: var(--muted); }
+.sugerencias li[aria-selected="true"], .sugerencias li[data-i]:hover { background: var(--accent-soft); }
+.sugerencias li.vacio { cursor: default; color: var(--muted); }

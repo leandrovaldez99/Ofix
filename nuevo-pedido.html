@@ -52,7 +52,7 @@
     <div class="field"><label for="f-calle">Calle</label><input class="input" id="f-calle" name="calle" type="text" maxlength="100" autocomplete="address-line1"></div>
     <div class="field"><label for="f-numero">Altura</label><input class="input" id="f-numero" name="numero" type="text" inputmode="numeric" maxlength="10"></div>
     <div class="field"><label for="f-prov">Provincia</label><select class="select" id="f-prov" name="provincia"></select></div>
-        <div class="field"><label for="f-loc">Localidad</label><input class="input" id="f-loc" name="localidad_nombre" type="text" list="f-loc-lista" autocomplete="off" placeholder="Escribí y elegí de la lista"><datalist id="f-loc-lista"></datalist><input type="hidden" name="localidad_id"></div>
+        <div class="field combo"><label for="f-loc">Localidad</label><input class="input" id="f-loc" name="localidad_nombre" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="f-loc-lista" autocomplete="off" placeholder="Escribí y elegí de la lista"><ul class="sugerencias" id="f-loc-lista" role="listbox" hidden></ul><input type="hidden" name="localidad_id"></div>
     <div class="field"><label for="f-cp">Código postal (opcional)</label><input class="input" id="f-cp" name="cp" type="text" inputmode="numeric" maxlength="10" autocomplete="postal-code"></div>
     <button class="link-btn span-2" type="button" id="btn-ubicacion" style="justify-self:start">Usar mi ubicación actual</button>
   </div>

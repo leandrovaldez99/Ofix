@@ -45,7 +45,7 @@
       <textarea class="textarea" id="f-desc" name="descripcion" rows="3" maxlength="255" placeholder="Ej.: Plomero matriculado, destapaciones y termotanques."></textarea></div>
     <div class="form-grid two">
       <div class="field"><label for="f-prov">Provincia</label><select class="select" id="f-prov" name="provincia" required></select></div>
-        <div class="field"><label for="f-loc">Localidad base</label><input class="input" id="f-loc" name="localidad_nombre" type="text" list="f-loc-lista" autocomplete="off" placeholder="Escribí y elegí de la lista" required><datalist id="f-loc-lista"></datalist><input type="hidden" name="localidad_id"></div>
+        <div class="field combo"><label for="f-loc">Localidad base</label><input class="input" id="f-loc" name="localidad_nombre" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="f-loc-lista" autocomplete="off" placeholder="Escribí y elegí de la lista" required><ul class="sugerencias" id="f-loc-lista" role="listbox" hidden></ul><input type="hidden" name="localidad_id"></div>
       <div class="field"><label for="f-radio">Radio de cobertura</label><select class="select" id="f-radio" name="radio"><option value="5">5 km</option><option value="10" selected>10 km</option><option value="15">15 km</option><option value="20">20 km</option><option value="30">30 km</option></select></div>
       <button class="link-btn span-2" type="button" id="btn-ubicacion" style="justify-self:start">Usar mi ubicación actual</button>
     </div>

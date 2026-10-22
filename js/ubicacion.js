@@ -31,93 +31,172 @@ export const PROVINCIAS = [
 const COLUMNAS = 'id, nombre, departamento, provincia_id, provincia, lat, lng';
 const ELEGI = 'Elegí la localidad de la lista que aparece al escribir.';
 
+// "Zárate" y "zarate" se consideran iguales
+export const sinTildes = (s) => String(s ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+
 /**
  * Conecta los campos de un formulario:
- *   <select name="provincia">, <input name="localidad_nombre" list="…"> con su <datalist>
- *   y <input type="hidden" name="localidad_id">.
+ *   <select name="provincia">, <input name="localidad_nombre"> con su lista de
+ *   sugerencias (<ul role="listbox">) y <input type="hidden" name="localidad_id">.
+ * La lista es propia y no un <datalist>: el del navegador vuelve a filtrar
+ * las opciones y distingue tildes ("Zarate" no mostraba "Zárate").
  * Devuelve un objeto para leer o cargar la localidad elegida.
  */
 export function selectorLocalidad(form) {
   const prov = form.elements.provincia;
   const texto = form.elements.localidad_nombre;
   const oculto = form.elements.localidad_id;
-  const lista = document.getElementById(texto.getAttribute('list'));
+
+  let lista = document.getElementById(texto.getAttribute('aria-controls') || texto.getAttribute('list') || '');
+  if (!lista || lista.tagName !== 'UL') {
+    const ul = document.createElement('ul');
+    ul.id = lista?.id || `${texto.id}-lista`;
+    lista?.remove();
+    texto.after(ul);
+    lista = ul;
+  }
+  texto.removeAttribute('list');
+  texto.setAttribute('role', 'combobox');
+  texto.setAttribute('aria-autocomplete', 'list');
+  texto.setAttribute('aria-controls', lista.id);
+  texto.setAttribute('aria-expanded', 'false');
+  texto.setAttribute('autocomplete', 'off');
+  lista.className = 'sugerencias';
+  lista.setAttribute('role', 'listbox');
+  lista.hidden = true;
+  texto.closest('.field')?.classList.add('combo');
 
   prov.innerHTML = '<option value="">Elegí la provincia</option>'
     + PROVINCIAS.map(([id, nombre]) => `<option value="${id}">${esc(nombre)}</option>`).join('');
 
-  let opciones = new Map(); // texto visible → localidad
+  let resultados = [];
+  let activo = -1;
   let elegida = null;
   let consulta = 0;
 
-  // Si hay dos con el mismo nombre se agrega el partido o departamento
-  function etiquetas(localidades) {
-    const cuenta = {};
-    for (const l of localidades) cuenta[l.nombre] = (cuenta[l.nombre] || 0) + 1;
-    return localidades.map((l) => [
-      cuenta[l.nombre] > 1 ? `${l.nombre} (${l.departamento}, ${l.provincia})` : l.nombre,
-      l,
-    ]);
+  // Si hay dos con el mismo nombre en la provincia se agrega el partido o departamento
+  function etiqueta(l) {
+    const repetida = resultados.filter((x) => x.nombre === l.nombre && x.provincia_id === l.provincia_id).length > 1;
+    return repetida ? `${l.nombre} (${l.departamento})` : l.nombre;
   }
 
-  function pintarOpciones(localidades) {
-    opciones = new Map(etiquetas(localidades));
-    lista.innerHTML = [...opciones].map(([valor, l]) => (
-      `<option value="${esc(valor)}" label="${esc(`${l.departamento}, ${l.provincia}`)}"></option>`
-    )).join('');
+  function abrir(si) {
+    lista.hidden = !si;
+    texto.setAttribute('aria-expanded', String(si));
+    if (!si) texto.removeAttribute('aria-activedescendant');
   }
 
-  function elegir(l) {
+  function pintar(mensaje) {
+    if (mensaje) {
+      lista.innerHTML = `<li class="vacio" role="option" aria-disabled="true">${esc(mensaje)}</li>`;
+      abrir(true);
+      return;
+    }
+    if (!resultados.length) {
+      abrir(false);
+      return;
+    }
+    lista.innerHTML = resultados.map((l, i) => `
+      <li role="option" id="${lista.id}-${i}" data-i="${i}" aria-selected="${i === activo}">
+        <b>${esc(l.nombre)}</b><small>${esc(`${l.departamento}, ${l.provincia}`)}</small>
+      </li>`).join('');
+    abrir(true);
+    if (activo >= 0) {
+      texto.setAttribute('aria-activedescendant', `${lista.id}-${activo}`);
+      lista.children[activo]?.scrollIntoView({ block: 'nearest' });
+    }
+  }
+
+  function elegir(l, { escribir = true, cerrar = true } = {}) {
     elegida = l || null;
     oculto.value = l ? l.id : '';
     if (l && prov.value !== l.provincia_id) prov.value = l.provincia_id;
+    if (l && escribir) texto.value = etiqueta(l);
     texto.setCustomValidity(!l && texto.value.trim() ? ELEGI : '');
+    if (cerrar) abrir(false);
     form.dispatchEvent(new CustomEvent('localidad', { detail: elegida }));
   }
 
   async function buscar() {
     const q = texto.value.trim();
-    if (opciones.has(texto.value)) return elegir(opciones.get(texto.value));
-    elegir(null);
     if (q.length < 2) {
-      lista.innerHTML = '';
+      resultados = [];
+      abrir(false);
       return;
     }
     const n = ++consulta;
     const { data, error } = await sb.rpc('buscar_localidades', { p_texto: q, p_provincia: prov.value || null });
     if (n !== consulta || error) return;
-    pintarOpciones(data);
-    if (opciones.has(texto.value)) elegir(opciones.get(texto.value));
-    // Si escribió el nombre completo y hay una sola coincidencia, se elige sola
-    else if (data.length === 1 && data[0].nombre.toLowerCase() === q.toLowerCase()) {
-      texto.value = data[0].nombre;
-      pintarOpciones(data);
-      elegir(data[0]);
+    resultados = data || [];
+    activo = resultados.length ? 0 : -1;
+    if (!resultados.length) {
+      pintar(prov.value ? 'No encontramos esa localidad en la provincia elegida.' : 'No encontramos esa localidad.');
+      return;
     }
+    // Si escribió el nombre completo (con o sin tildes) y es una sola, queda elegida
+    const exactas = resultados.filter((l) => sinTildes(l.nombre) === sinTildes(q));
+    if (exactas.length === 1) {
+      activo = resultados.indexOf(exactas[0]);
+      elegir(exactas[0], { escribir: false, cerrar: false });
+    }
+    if (document.activeElement === texto) pintar();
   }
 
   let espera;
   texto.addEventListener('input', () => {
     clearTimeout(espera);
-    if (opciones.has(texto.value)) return elegir(opciones.get(texto.value));
-    espera = setTimeout(buscar, 200);
+    elegir(null, { cerrar: false });
+    espera = setTimeout(buscar, 180);
   });
-  texto.addEventListener('change', buscar);
+
+  texto.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      if (!resultados.length) return;
+      e.preventDefault();
+      const paso = e.key === 'ArrowDown' ? 1 : -1;
+      activo = lista.hidden ? Math.max(activo, 0) : (activo + paso + resultados.length) % resultados.length;
+      pintar();
+    } else if (e.key === 'Enter' && !lista.hidden && resultados[activo]) {
+      e.preventDefault();
+      elegir(resultados[activo]);
+    } else if (e.key === 'Escape' && !lista.hidden) {
+      e.preventDefault();
+      abrir(false);
+    }
+  });
+
+  // mousedown (y no click) para elegir antes de que el campo pierda el foco
+  lista.addEventListener('mousedown', (e) => {
+    const li = e.target.closest('li[data-i]');
+    e.preventDefault();
+    if (li) elegir(resultados[Number(li.dataset.i)]);
+  });
+
+  texto.addEventListener('focus', () => {
+    if (resultados.length && !elegida) pintar();
+  });
+
+  texto.addEventListener('blur', () => {
+    abrir(false);
+    // Muestra el nombre bien escrito ("zarate" → "Zárate")
+    if (elegida) texto.value = etiqueta(elegida);
+  });
 
   prov.addEventListener('change', () => {
     if (elegida && elegida.provincia_id !== prov.value) {
       texto.value = '';
-      lista.innerHTML = '';
-      opciones = new Map();
+      resultados = [];
       elegir(null);
+    } else if (!elegida && texto.value.trim().length >= 2) {
+      buscar();
     }
   });
 
   function poner(l) {
     if (!l) return;
     prov.value = l.provincia_id;
-    pintarOpciones([l]);
-    texto.value = [...opciones.keys()][0];
+    resultados = [l];
+    activo = 0;
     elegir(l);
   }
 
@@ -131,8 +210,7 @@ export function selectorLocalidad(form) {
     },
     limpiar() {
       texto.value = '';
-      lista.innerHTML = '';
-      opciones = new Map();
+      resultados = [];
       elegir(null);
     },
   };
